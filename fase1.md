@@ -1,4 +1,4 @@
-# FASE 1 - SETUP STRUKTUR & ARSITEKTUR PROJECT
+# FASE 1 - ADMIN MASTER DATA, MIGRATION, MODEL & FILAMENT CRUD
 
 ## Project
 
@@ -9,449 +9,83 @@ Jenis aplikasi: Sistem Operasional Cafe berbasis web.
 Stack utama:
 - Laravel 12
 - PHP 8.3+
-- Vue 3
-- Inertia.js
-- Tailwind CSS
+- Vue 3 + Inertia.js sudah tersedia, tetapi tidak digunakan pada fase ini
 - Filament 3
 - MySQL
-- Spatie Laravel Permission
+- Role statis menggunakan kolom `users.role`
 
 Status project saat ini:
-- Project Laravel sudah dibuat.
-- Vue 3 + Inertia sudah terpasang.
-- Filament 3 sudah terpasang.
-- Spatie Permission sudah terpasang.
+- Project Laravel 12 sudah dibuat.
 - Project sudah bisa dijalankan.
+- Filament 3 sudah terpasang.
+- Fokus fase ini adalah backend admin dan master data.
 
 ---
 
 ## Tujuan Fase 1
 
-Fase ini hanya berfokus pada setup struktur dan arsitektur project.
+Fase ini berfokus untuk membangun pondasi admin panel menggunakan Filament 3.
 
-Jangan membuat fitur bisnis detail dulu.
+Fokus utama:
+- Membuat migration data master.
+- Membuat model dan relasi data master.
+- Membuat enum role/status dasar.
+- Membuat Filament Resource CRUD untuk data master.
+- Membuat grouping sidebar Filament.
+- Menyiapkan akses admin berbasis role statis.
+- Menyiapkan seed data awal jika diperlukan.
 
-Fase ini bertujuan agar struktur project siap untuk fase berikutnya, yaitu:
-- migrasi database,
-- model,
-- Filament Resource,
-- controller,
-- API,
-- frontend UI.
+Fase ini tidak membahas frontend customer, POS kasir, kitchen display, UI/UX custom, API publik, ataupun integrasi realtime.
 
 ---
 
 ## Scope Fase 1
 
-Yang harus dikerjakan pada fase ini:
+Kerjakan hanya bagian berikut:
 
-1. Merapikan struktur folder backend.
-2. Merapikan struktur folder frontend.
-3. Menyiapkan struktur Service Layer.
-4. Menyiapkan struktur Action.
-5. Menyiapkan struktur DTO.
-6. Menyiapkan struktur Enum.
-7. Menyiapkan struktur Policy.
-8. Menyiapkan struktur Observer.
-9. Menyiapkan struktur Support helper.
-10. Menyiapkan struktur Trait.
-11. Menyiapkan role dan permission dasar.
-12. Menyiapkan route dasar.
-13. Menyiapkan arsitektur Filament 3.
-14. Menyiapkan arsitektur frontend Vue 3 + Inertia.
-15. Menyiapkan standar coding.
+1. Migration data master.
+2. Model data master.
+3. Relationship antar model.
+4. Enum dasar.
+5. Seeder awal untuk user admin dan data referensi.
+6. Filament Resource CRUD untuk data master.
+7. Sidebar group Filament.
+8. Role statis pada user.
+9. Akses Filament berdasarkan role.
+10. Form dan table Filament untuk CRUD data master.
 
 ---
 
 ## Out of Scope Fase 1
 
-Jangan kerjakan hal berikut pada fase ini:
+Jangan kerjakan hal berikut:
 
-- Jangan membuat migration fitur lengkap.
-- Jangan membuat model bisnis lengkap.
-- Jangan membuat CRUD Filament detail.
-- Jangan membuat dashboard final.
-- Jangan membuat POS final.
-- Jangan membuat kitchen display final.
-- Jangan membuat QR menu final.
+- Jangan membuat frontend Vue/Inertia.
+- Jangan membuat halaman customer.
+- Jangan membuat POS kasir.
+- Jangan membuat kitchen display.
+- Jangan membuat order transaction flow.
 - Jangan membuat payment gateway.
-- Jangan membuat inventory logic detail.
-- Jangan membuat laporan keuangan final.
-- Jangan membuat fitur multi cabang.
-- Jangan membuat fitur loyalty/member.
-- Jangan membuat fitur AI forecasting.
+- Jangan membuat laporan analytics final.
+- Jangan membuat API untuk frontend.
+- Jangan membuat realtime system.
+- Jangan membuat loyalty/member.
+- Jangan membuat multi cabang.
+- Jangan membuat dashboard custom yang kompleks.
+- Jangan menggunakan Spatie Permission.
+- Jangan membuat role/permission dinamis.
 
 ---
 
-# 1. Struktur Folder Backend
+# 1. Role Statis
 
-Buat folder berikut jika belum ada:
+Project ini menggunakan role statis.
+
+Role disimpan pada kolom:
 
 ```txt
-app/
-├── Actions/
-├── DTOs/
-├── Enums/
-├── Exceptions/
-├── Http/
-│   ├── Controllers/
-│   │   ├── Web/
-│   │   └── Api/
-│   ├── Requests/
-│   └── Resources/
-├── Models/
-├── Observers/
-├── Policies/
-├── Services/
-├── Support/
-└── Traits/
+users.role
 ```
-
----
-
-## app/Actions
-
-Digunakan untuk proses kecil yang spesifik dan reusable.
-
-Contoh action yang nanti akan digunakan:
-- CreateOrderAction
-- CalculateOrderTotalAction
-- ReduceStockFromOrderAction
-- GenerateOrderCodeAction
-- GenerateQrCodeAction
-- CompletePaymentAction
-
-Pada fase 1 cukup buat foldernya saja.
-
-Boleh tambahkan `.gitkeep` agar folder masuk ke git.
-
----
-
-## app/Services
-
-Digunakan untuk business logic utama.
-
-Contoh service yang nanti akan digunakan:
-- OrderService
-- TransactionService
-- InventoryService
-- PurchaseService
-- ExpenseService
-- ReportService
-- PaymentService
-- MenuService
-
-Pada fase 1 cukup buat foldernya saja.
-
----
-
-## app/DTOs
-
-Digunakan untuk Data Transfer Object agar data antar layer lebih rapi.
-
-Contoh DTO yang nanti akan digunakan:
-- CreateOrderData
-- CreateTransactionData
-- PaymentData
-- StockMovementData
-- CreateExpenseData
-
-Pada fase 1 cukup buat foldernya saja.
-
----
-
-## app/Enums
-
-Digunakan untuk status tetap agar tidak menggunakan string manual.
-
-Enum yang wajib disiapkan nanti:
-- OrderStatus
-- PaymentStatus
-- TransactionStatus
-- PurchaseStatus
-- StockMovementType
-- TableStatus
-- UserRole
-
-Pada fase 1 boleh membuat enum dasar:
-- OrderStatus
-- PaymentStatus
-- TableStatus
-
----
-
-## app/Http/Controllers/Web
-
-Digunakan untuk halaman berbasis Inertia.
-
-Controller web yang boleh dibuat sebagai placeholder:
-- CustomerMenuController
-- CashierController
-- KitchenController
-- DashboardController
-
-Controller hanya boleh return halaman placeholder Inertia.
-
-Jangan isi business logic.
-
----
-
-## app/Http/Controllers/Api
-
-Digunakan untuk endpoint JSON.
-
-Controller API yang boleh dibuat sebagai placeholder:
-- MenuController
-- OrderController
-- TransactionController
-- InventoryController
-- ReportController
-
-Pada fase 1 cukup struktur file kosong atau method index placeholder.
-
----
-
-## app/Http/Requests
-
-Digunakan untuk validasi request.
-
-Pada fase 1 cukup buat foldernya saja.
-
-Nanti digunakan untuk:
-- StoreOrderRequest
-- StoreTransactionRequest
-- StoreExpenseRequest
-- StoreMenuRequest
-- StoreRawMaterialRequest
-
----
-
-## app/Http/Resources
-
-Digunakan untuk format response API.
-
-Pada fase 1 cukup buat foldernya saja.
-
-Nanti digunakan untuk:
-- MenuResource
-- OrderResource
-- TransactionResource
-- RawMaterialResource
-- ExpenseResource
-
----
-
-## app/Policies
-
-Digunakan untuk authorization.
-
-Pada fase 1 cukup pastikan folder tersedia.
-
-Policy nanti digunakan untuk:
-- MenuPolicy
-- OrderPolicy
-- TransactionPolicy
-- RawMaterialPolicy
-- ExpensePolicy
-- ReportPolicy
-
----
-
-## app/Observers
-
-Digunakan untuk event model.
-
-Pada fase 1 cukup folder.
-
-Observer nanti digunakan untuk:
-- OrderObserver
-- TransactionObserver
-- StockMovementObserver
-
----
-
-## app/Support
-
-Digunakan untuk helper class internal.
-
-Contoh nanti:
-- MoneyFormatter
-- CodeGenerator
-- DateRangeHelper
-- ReportHelper
-
----
-
-## app/Traits
-
-Digunakan untuk trait reusable.
-
-Contoh nanti:
-- HasCode
-- HasUuid
-- HasCreatedBy
-- HasStatusBadge
-
----
-
-# 2. Struktur Folder Frontend
-
-Gunakan struktur Vue 3 + Inertia berikut:
-
-```txt
-resources/js/
-├── Pages/
-│   ├── Customer/
-│   ├── Cashier/
-│   ├── Kitchen/
-│   └── Dashboard/
-├── Layouts/
-├── Components/
-│   ├── ui/
-│   ├── form/
-│   ├── card/
-│   ├── table/
-│   └── shared/
-├── Composables/
-├── Stores/
-└── Utils/
-```
-
----
-
-## Pages
-
-Buat folder:
-- `resources/js/Pages/Customer`
-- `resources/js/Pages/Cashier`
-- `resources/js/Pages/Kitchen`
-- `resources/js/Pages/Dashboard`
-
-Pada fase 1 boleh membuat halaman placeholder:
-- `Customer/Menu.vue`
-- `Cashier/Index.vue`
-- `Kitchen/Display.vue`
-- `Dashboard/Index.vue`
-
-Isi cukup tampilan sederhana agar route bisa dites.
-
----
-
-## Layouts
-
-Buat layout dasar:
-- `CustomerLayout.vue`
-- `CashierLayout.vue`
-- `KitchenLayout.vue`
-- `AppLayout.vue`
-
-Layout hanya mengatur tampilan dasar.
-
-Jangan masukkan business logic ke layout.
-
----
-
-## Components
-
-Siapkan folder komponen:
-- `ui`
-- `form`
-- `card`
-- `table`
-- `shared`
-
-Pada fase 1 boleh buat komponen dasar:
-- `Button.vue`
-- `Card.vue`
-- `Badge.vue`
-
----
-
-## Composables
-
-Siapkan folder untuk reusable logic Vue.
-
-Contoh nanti:
-- useCart.js
-- useCurrency.js
-- useOrderStatus.js
-- useRealtimeOrder.js
-
-Pada fase 1 cukup buat folder.
-
----
-
-## Stores
-
-Gunakan Pinia untuk state management.
-
-Contoh store nanti:
-- cartStore.js
-- orderStore.js
-- cashierStore.js
-- kitchenStore.js
-
-Pada fase 1 cukup buat folder.
-
----
-
-## Utils
-
-Digunakan untuk helper frontend.
-
-Contoh nanti:
-- formatCurrency.js
-- formatDate.js
-- statusColor.js
-
-Pada fase 1 boleh buat `formatCurrency.js`.
-
----
-
-# 3. Arsitektur Filament 3
-
-Filament hanya digunakan untuk backoffice/admin.
-
-Route Filament:
-
-```txt
-/admin
-```
-
-Filament digunakan untuk:
-- Dashboard Owner
-- Master Menu
-- Master Kategori Menu
-- Master Bahan Baku
-- Master Resep/HPP
-- Master Supplier
-- Master Meja
-- Master Metode Pembayaran
-- Master Kategori Pengeluaran
-- Pembelian Bahan Baku
-- Pencatatan Pengeluaran
-- Laporan Penjualan
-- Laporan Margin
-- Laporan Stok
-- User Management
-- Role & Permission
-
-Filament tidak digunakan untuk:
-- POS kasir
-- QR menu customer
-- Cart customer
-- Checkout customer
-- Kitchen display
-- Order status customer
-- Tampilan pelayan
-
-Modul tersebut dibuat menggunakan Vue 3 + Inertia.
-
----
-
-# 4. Role dan Permission Dasar
-
-Gunakan Spatie Laravel Permission.
 
 Role awal:
 
@@ -465,192 +99,1028 @@ waiter
 customer
 ```
 
-Permission awal:
+Gunakan enum:
 
 ```txt
-view_dashboard
-manage_users
-manage_roles
-manage_menus
-manage_categories
-manage_raw_materials
-manage_recipes
-manage_suppliers
-manage_tables
-manage_payment_methods
-manage_expenses
-manage_purchases
-view_reports
-access_pos
-access_kitchen
-process_orders
-process_payments
+App\Enums\UserRole
 ```
 
-Pada fase 1:
-- Buat seeder role dan permission.
-- Assign semua permission ke `super_admin`.
-- Assign permission sesuai role secara dasar.
-- Jangan buat logic permission yang terlalu kompleks.
+Contoh enum:
 
----
+```php
+<?php
 
-# 5. Route Dasar
+namespace App\Enums;
 
-Siapkan route dasar berikut:
-
-```txt
-/admin
-/cashier
-/kitchen
-/customer/menu/{table}
+enum UserRole: string
+{
+    case SuperAdmin = 'super_admin';
+    case Owner = 'owner';
+    case AdminManager = 'admin_manager';
+    case Cashier = 'cashier';
+    case Kitchen = 'kitchen';
+    case Waiter = 'waiter';
+    case Customer = 'customer';
+}
 ```
 
 Aturan:
-- `/admin` digunakan oleh Filament.
-- `/cashier` menggunakan Inertia dan middleware auth.
-- `/kitchen` menggunakan Inertia dan middleware auth.
-- `/customer/menu/{table}` boleh public karena diakses dari QR meja.
+- Jangan gunakan Spatie Permission.
+- Jangan buat tabel `roles`.
+- Jangan buat tabel `permissions`.
+- Jangan buat pivot permission.
+- Role cukup dari kolom `users.role`.
+- Akses dicek lewat enum, middleware, policy, atau method pada model User.
+
+Role yang boleh akses Filament:
+- `super_admin`
+- `owner`
+- `admin_manager`
+
+Role lain tidak boleh masuk panel admin.
 
 ---
 
-# 6. Middleware Dasar
+# 2. Update Tabel Users
 
-Gunakan middleware:
-- auth
-- role
-- permission
-
-Route internal wajib dilindungi auth.
-
-Akses:
-- `/admin` untuk super_admin, owner, admin_manager.
-- `/cashier` untuk super_admin, owner, cashier.
-- `/kitchen` untuk super_admin, owner, kitchen.
-- `/customer/menu/{table}` public.
-
----
-
-# 7. Prinsip Controller
-
-Controller harus tipis.
-
-Alur controller:
+Tambahkan field berikut pada tabel `users`:
 
 ```txt
-Request
-→ FormRequest
-→ Controller
-→ Service
-→ Action/Model
-→ Response
+role
+phone
+is_active
 ```
 
-Controller tidak boleh:
-- berisi query kompleks,
-- berisi hitungan transaksi panjang,
-- berisi logic stok,
-- berisi logic laporan.
+Detail field:
+- `role`: string atau enum, default `admin_manager`
+- `phone`: nullable string
+- `is_active`: boolean, default true
+
+Model User harus memiliki cast:
+- `is_active` ke boolean
+- `role` ke `UserRole` jika menggunakan enum cast
+
+User hanya boleh login Filament jika:
+- `is_active = true`
+- role termasuk `super_admin`, `owner`, atau `admin_manager`
 
 ---
 
-# 8. Prinsip Service Layer
+# 3. Master Data yang Dibuat
 
-Service digunakan untuk:
-- order,
-- transaksi,
-- inventory,
-- payment,
-- purchase,
-- expense,
-- report.
+Fase ini fokus pada master data cafe.
 
-Service tidak boleh mengatur response HTTP.
+Master data yang wajib dibuat:
 
-Service boleh menggunakan:
-- model,
-- action,
-- DTO,
-- enum,
-- database transaction.
+1. Category
+2. Menu
+3. Supplier
+4. Raw Material
+5. Recipe
+6. Table
+7. Payment Method
+8. Expense Category
 
----
-
-# 9. Prinsip Enum
-
-Semua status wajib menggunakan enum.
-
-Jangan gunakan string status manual berulang.
-
-Contoh status yang harus menggunakan enum:
-- order status
-- payment status
-- purchase status
-- stock movement type
-- table status
+Opsional jika masih sempat:
+9. Unit
+10. Tax / Service Setting
 
 ---
 
-# 10. Prinsip Naming
+# 4. Database Schema
 
-Gunakan bahasa Inggris untuk:
-- nama folder,
-- nama class,
-- nama model,
-- nama table,
-- nama field,
-- nama method.
+## 4.1 categories
 
-Contoh benar:
+Untuk kategori menu.
+
+Table name:
 
 ```txt
+categories
+```
+
+Fields:
+
+```txt
+id
+name
+slug
+description nullable
+is_active boolean default true
+sort_order unsigned integer default 0
+timestamps
+softDeletes
+```
+
+Relasi:
+- Category has many Menu
+
+---
+
+## 4.2 menus
+
+Untuk data menu makanan/minuman yang dijual.
+
+Table name:
+
+```txt
+menus
+```
+
+Fields:
+
+```txt
+id
+category_id foreignId constrained categories cascadeOnUpdate restrictOnDelete
+name
+slug
+sku nullable unique
+description nullable
+image nullable
+selling_price decimal(15,2)
+hpp decimal(15,2) default 0
+is_available boolean default true
+is_active boolean default true
+sort_order unsigned integer default 0
+timestamps
+softDeletes
+```
+
+Relasi:
+- Menu belongs to Category
+- Menu has many Recipe
+
+Catatan:
+- `selling_price` adalah harga jual.
+- `hpp` boleh diinput manual pada fase ini.
+- Perhitungan HPP otomatis dari recipe belum wajib pada fase ini.
+
+---
+
+## 4.3 suppliers
+
+Untuk pemasok bahan baku.
+
+Table name:
+
+```txt
+suppliers
+```
+
+Fields:
+
+```txt
+id
+name
+phone nullable
+email nullable
+address nullable
+note nullable
+is_active boolean default true
+timestamps
+softDeletes
+```
+
+Relasi:
+- Supplier has many RawMaterial
+
+---
+
+## 4.4 raw_materials
+
+Untuk bahan baku cafe.
+
+Table name:
+
+```txt
+raw_materials
+```
+
+Fields:
+
+```txt
+id
+supplier_id nullable foreignId constrained suppliers nullOnDelete
+name
+sku nullable unique
+unit
+stock decimal(15,3) default 0
+minimum_stock decimal(15,3) default 0
+buy_price decimal(15,2) default 0
+is_active boolean default true
+timestamps
+softDeletes
+```
+
+Relasi:
+- RawMaterial belongs to Supplier
+- RawMaterial has many Recipe
+
+Catatan:
+- `unit` menggunakan string dulu, contoh: gram, ml, pcs, kg, liter.
+- Master unit terpisah bersifat opsional.
+
+---
+
+## 4.5 recipes
+
+Untuk komposisi bahan baku pada menu.
+
+Table name:
+
+```txt
+recipes
+```
+
+Fields:
+
+```txt
+id
+menu_id foreignId constrained menus cascadeOnDelete
+raw_material_id foreignId constrained raw_materials restrictOnDelete
+quantity decimal(15,3)
+unit
+note nullable
+timestamps
+```
+
+Relasi:
+- Recipe belongs to Menu
+- Recipe belongs to RawMaterial
+
+Catatan:
+- Recipe dipakai untuk HPP dan auto stock deduction pada fase berikutnya.
+- Pada fase ini cukup CRUD relasi menu dan bahan baku.
+
+---
+
+## 4.6 tables
+
+Untuk meja cafe dan QR menu.
+
+Karena `table` adalah istilah umum, gunakan nama model `CafeTable`.
+
+Table name:
+
+```txt
+cafe_tables
+```
+
+Fields:
+
+```txt
+id
+table_number unique
+name nullable
+capacity unsigned integer nullable
+qr_code nullable
+status string default available
+is_active boolean default true
+timestamps
+softDeletes
+```
+
+Status awal:
+```txt
+available
+occupied
+reserved
+inactive
+```
+
+Relasi:
+- CafeTable akan digunakan pada order di fase berikutnya.
+
+---
+
+## 4.7 payment_methods
+
+Untuk metode pembayaran.
+
+Table name:
+
+```txt
+payment_methods
+```
+
+Fields:
+
+```txt
+id
+name
+code unique
+type string
+is_active boolean default true
+sort_order unsigned integer default 0
+timestamps
+softDeletes
+```
+
+Type awal:
+
+```txt
+cash
+qris
+transfer
+debit
+ewallet
+```
+
+---
+
+## 4.8 expense_categories
+
+Untuk kategori pengeluaran operasional.
+
+Table name:
+
+```txt
+expense_categories
+```
+
+Fields:
+
+```txt
+id
+name
+slug
+description nullable
+is_active boolean default true
+sort_order unsigned integer default 0
+timestamps
+softDeletes
+```
+
+Contoh:
+- Listrik
+- Air
+- WiFi
+- Gas
+- Gaji
+- Maintenance
+- Bahan habis pakai
+
+---
+
+## 4.9 units Optional
+
+Jika ingin dibuat sebagai master terpisah.
+
+Table name:
+
+```txt
+units
+```
+
+Fields:
+
+```txt
+id
+name
+symbol
+description nullable
+is_active boolean default true
+timestamps
+softDeletes
+```
+
+Contoh:
+- gram / gr
+- kilogram / kg
+- mililiter / ml
+- liter / l
+- pieces / pcs
+
+Jika master unit dibuat, field `unit` pada raw_materials dan recipes tetap boleh string dulu agar sederhana.
+
+---
+
+# 5. Model yang Dibuat
+
+Buat model berikut:
+
+```txt
+Category
 Menu
+Supplier
 RawMaterial
+Recipe
+CafeTable
 PaymentMethod
 ExpenseCategory
-StockMovement
 ```
 
-Contoh salah:
+Opsional:
 
 ```txt
-BahanBaku
-MetodePembayaran
-KategoriPengeluaran
+Unit
+```
+
+Setiap model wajib:
+- Menggunakan namespace standar Laravel.
+- Menggunakan `HasFactory`.
+- Menggunakan `SoftDeletes` untuk data master utama.
+- Mendefinisikan `$fillable`.
+- Mendefinisikan cast boolean dan decimal.
+- Mendefinisikan relationship.
+
+---
+
+## 5.1 Relationship Model
+
+Category:
+
+```txt
+hasMany Menu
+```
+
+Menu:
+
+```txt
+belongsTo Category
+hasMany Recipe
+```
+
+Supplier:
+
+```txt
+hasMany RawMaterial
+```
+
+RawMaterial:
+
+```txt
+belongsTo Supplier
+hasMany Recipe
+```
+
+Recipe:
+
+```txt
+belongsTo Menu
+belongsTo RawMaterial
+```
+
+CafeTable:
+
+```txt
+belum ada relasi fase ini
+```
+
+PaymentMethod:
+
+```txt
+belum ada relasi fase ini
+```
+
+ExpenseCategory:
+
+```txt
+belum ada relasi fase ini
 ```
 
 ---
 
-# 11. Coding Standard
+# 6. Enum yang Dibuat
 
-Wajib:
-- Controller tipis.
-- Gunakan Service Layer.
-- Gunakan Action untuk proses spesifik.
-- Gunakan Form Request untuk validasi.
-- Gunakan API Resource untuk response JSON.
-- Gunakan Enum untuk status.
-- Gunakan Policy untuk authorization.
-- Gunakan SoftDeletes untuk data penting.
-- Gunakan database transaction untuk proses transaksi penting.
-- Gunakan eager loading untuk menghindari N+1 query.
-- Jangan membuat Blade manual untuk admin.
-- Jangan mencampur logic Filament dengan logic frontend.
-- Jangan membuat fitur di luar scope fase 1.
+Buat enum berikut:
+
+```txt
+App\Enums\UserRole
+App\Enums\TableStatus
+App\Enums\PaymentMethodType
+```
+
+## UserRole
+
+Value:
+
+```txt
+super_admin
+owner
+admin_manager
+cashier
+kitchen
+waiter
+customer
+```
+
+## TableStatus
+
+Value:
+
+```txt
+available
+occupied
+reserved
+inactive
+```
+
+## PaymentMethodType
+
+Value:
+
+```txt
+cash
+qris
+transfer
+debit
+ewallet
+```
 
 ---
 
-# 12. Output Akhir Fase 1
+# 7. Filament Sidebar Group
+
+Buat grouping sidebar Filament agar rapi.
+
+Gunakan navigation group berikut:
+
+```txt
+Dashboard
+Master Data
+Inventory
+Finance
+Settings
+```
+
+Untuk fase 1, resource ditempatkan sebagai berikut:
+
+## Dashboard
+
+```txt
+Dashboard
+```
+
+## Master Data
+
+```txt
+Categories
+Menus
+Cafe Tables
+Payment Methods
+```
+
+## Inventory
+
+```txt
+Suppliers
+Raw Materials
+Recipes
+Units optional
+```
+
+## Finance
+
+```txt
+Expense Categories
+```
+
+## Settings
+
+```txt
+Users
+```
+
+Aturan:
+- Gunakan label yang jelas.
+- Gunakan icon Filament/Heroicons yang sesuai.
+- Gunakan sort order agar sidebar rapi.
+- Jangan buat navigation group terlalu banyak.
+
+---
+
+# 8. Filament Resource yang Wajib Dibuat
+
+Buat Filament Resource untuk:
+
+```txt
+CategoryResource
+MenuResource
+SupplierResource
+RawMaterialResource
+RecipeResource
+CafeTableResource
+PaymentMethodResource
+ExpenseCategoryResource
+UserResource
+```
+
+Opsional:
+
+```txt
+UnitResource
+```
+
+---
+
+# 9. Ketentuan Filament Resource
+
+Setiap resource wajib memiliki:
+
+- Form schema
+- Table columns
+- Search
+- Sort
+- Filter aktif/nonaktif
+- Edit action
+- Delete action
+- Bulk delete jika aman
+- Soft delete handling untuk data master yang memakai SoftDeletes
+
+Jangan membuat Blade manual.
+
+Gunakan bawaan Filament 3:
+- Forms
+- Tables
+- Resources
+- Pages
+- Actions
+
+---
+
+# 10. Detail Form Filament
+
+## CategoryResource Form
+
+Fields:
+- name
+- slug auto dari name
+- description
+- is_active
+- sort_order
+
+Table:
+- name
+- slug
+- is_active
+- sort_order
+- created_at
+
+Filter:
+- is_active
+
+---
+
+## MenuResource Form
+
+Fields:
+- category_id select relationship
+- name
+- slug auto dari name
+- sku
+- description
+- image upload
+- selling_price
+- hpp
+- is_available
+- is_active
+- sort_order
+
+Table:
+- image
+- name
+- category.name
+- selling_price
+- hpp
+- margin display optional
+- is_available
+- is_active
+- created_at
+
+Filter:
+- category
+- is_available
+- is_active
+
+Catatan:
+- Margin boleh dibuat sebagai calculated column:
+  `selling_price - hpp`
+- Persentase margin optional.
+
+---
+
+## SupplierResource Form
+
+Fields:
+- name
+- phone
+- email
+- address
+- note
+- is_active
+
+Table:
+- name
+- phone
+- email
+- is_active
+- created_at
+
+Filter:
+- is_active
+
+---
+
+## RawMaterialResource Form
+
+Fields:
+- supplier_id select relationship nullable
+- name
+- sku
+- unit
+- stock
+- minimum_stock
+- buy_price
+- is_active
+
+Table:
+- name
+- supplier.name
+- unit
+- stock
+- minimum_stock
+- buy_price
+- stock_status badge
+- is_active
+
+Filter:
+- supplier
+- is_active
+- low stock optional
+
+Catatan:
+- Stock status:
+  - low jika stock <= minimum_stock
+  - safe jika stock > minimum_stock
+
+---
+
+## RecipeResource Form
+
+Fields:
+- menu_id select relationship
+- raw_material_id select relationship
+- quantity
+- unit
+- note
+
+Table:
+- menu.name
+- rawMaterial.name
+- quantity
+- unit
+- note
+
+Filter:
+- menu
+- raw_material
+
+Catatan:
+- Recipe bisa juga nanti dijadikan RelationManager di MenuResource.
+- Pada fase 1 boleh tetap dibuat Resource sendiri agar mudah CRUD.
+
+---
+
+## CafeTableResource Form
+
+Fields:
+- table_number
+- name
+- capacity
+- qr_code
+- status
+- is_active
+
+Table:
+- table_number
+- name
+- capacity
+- status badge
+- is_active
+- created_at
+
+Filter:
+- status
+- is_active
+
+Catatan:
+- QR generation otomatis belum wajib.
+- Field qr_code boleh nullable.
+
+---
+
+## PaymentMethodResource Form
+
+Fields:
+- name
+- code
+- type
+- is_active
+- sort_order
+
+Table:
+- name
+- code
+- type
+- is_active
+- sort_order
+
+Filter:
+- type
+- is_active
+
+---
+
+## ExpenseCategoryResource Form
+
+Fields:
+- name
+- slug auto dari name
+- description
+- is_active
+- sort_order
+
+Table:
+- name
+- slug
+- is_active
+- sort_order
+- created_at
+
+Filter:
+- is_active
+
+---
+
+## UserResource Form
+
+Fields:
+- name
+- email
+- password
+- role
+- phone
+- is_active
+
+Table:
+- name
+- email
+- role
+- phone
+- is_active
+- created_at
+
+Filter:
+- role
+- is_active
+
+Aturan password:
+- Saat create, password wajib.
+- Saat edit, password nullable.
+- Jika password kosong saat edit, jangan ubah password lama.
+- Password harus di-hash.
+
+---
+
+# 11. Seeder Awal
+
+Buat seeder awal:
+
+```txt
+AdminUserSeeder
+MasterDataSeeder
+```
+
+## AdminUserSeeder
+
+Buat user awal:
+
+```txt
+name: Super Admin
+email: admin@cafewta.test
+password: password
+role: super_admin
+is_active: true
+```
+
+## MasterDataSeeder
+
+Isi data awal:
+
+Categories:
+- Coffee
+- Non Coffee
+- Food
+- Snack
+- Dessert
+
+Payment Methods:
+- Cash
+- QRIS
+- Transfer
+- Debit
+
+Expense Categories:
+- Listrik
+- Air
+- WiFi
+- Gas
+- Gaji
+- Maintenance
+- Bahan Habis Pakai
+
+Units optional:
+- gram
+- kilogram
+- ml
+- liter
+- pcs
+
+---
+
+# 12. Akses Filament
+
+Pastikan hanya role berikut yang bisa masuk Filament:
+
+```txt
+super_admin
+owner
+admin_manager
+```
+
+Implementasi:
+- Gunakan method `canAccessPanel` pada model User jika dibutuhkan oleh Filament.
+- Cek `is_active`.
+- Cek role user.
+
+Contoh logic:
+
+```txt
+user aktif DAN role termasuk super_admin/owner/admin_manager
+```
+
+---
+
+# 13. Prinsip Coding
+
+Wajib:
+- Gunakan bahasa Inggris untuk nama table, model, class, dan field.
+- Gunakan migration yang rapi.
+- Gunakan foreign key constraint.
+- Gunakan soft delete untuk data master utama.
+- Gunakan enum untuk status/type.
+- Gunakan model relationship.
+- Gunakan fillable.
+- Gunakan cast.
+- Gunakan Filament Resource bawaan.
+- Jangan buat Blade manual.
+- Jangan buat frontend.
+- Jangan buat API.
+- Jangan buat fitur transaksi.
+- Jangan buat fitur inventory movement.
+- Jangan buat laporan final.
+
+---
+
+# 14. Output Akhir Fase 1
 
 Setelah fase 1 selesai, project harus memiliki:
 
-- Struktur folder backend rapi.
-- Struktur folder frontend rapi.
-- Folder Service, Action, DTO, Enum, Policy, Observer, Support, Trait tersedia.
-- Role dan permission dasar tersedia.
-- Seeder role dan permission tersedia.
-- Route dasar tersedia.
-- Halaman placeholder Inertia untuk cashier, kitchen, customer menu, dashboard tersedia.
-- Filament admin tetap berjalan di `/admin`.
-- Project tetap bisa dijalankan dengan `composer run dev`.
-- Tidak ada fitur bisnis detail yang dibuat di fase ini.
+- Migration master data selesai.
+- Model master data selesai.
+- Relationship antar model selesai.
+- Enum dasar selesai.
+- User role statis selesai.
+- Seeder admin dan master data selesai.
+- Filament Resource CRUD data master selesai.
+- Sidebar group Filament rapi.
+- Akses Filament berdasarkan role statis.
+- Project tetap bisa berjalan dengan `composer run dev`.
+- Admin dapat login ke `/admin`.
+- CRUD master data dapat digunakan dari Filament.
+
+---
+
+# 15. Checklist Selesai
+
+Fase 1 dianggap selesai jika:
+
+- `php artisan migrate:fresh --seed` berhasil.
+- Login admin berhasil.
+- `/admin` dapat dibuka.
+- Sidebar memiliki group:
+  - Master Data
+  - Inventory
+  - Finance
+  - Settings
+- CRUD Category berjalan.
+- CRUD Menu berjalan.
+- CRUD Supplier berjalan.
+- CRUD Raw Material berjalan.
+- CRUD Recipe berjalan.
+- CRUD Cafe Table berjalan.
+- CRUD Payment Method berjalan.
+- CRUD Expense Category berjalan.
+- CRUD User berjalan.
+- Tidak ada frontend custom yang dibuat.

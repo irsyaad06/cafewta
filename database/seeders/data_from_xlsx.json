@@ -1,0 +1,391 @@
+{
+    "categories": [
+        {
+            "name": "Main Course",
+            "menus": [
+                "Paket Ayam Bakar Madu",
+                "Paket Ayam Penyet",
+                "Mie Ayam Bakar Madu",
+                "Mie Ayam Penyet"
+            ]
+        },
+        {
+            "name": "Menu Anak",
+            "menus": [
+                "Si TeDar",
+                "Si TeJu",
+                "Nasi Katsu"
+            ]
+        },
+        {
+            "name": "Indomie",
+            "menus": [
+                "Indomie Rebus",
+                "Indomie Goreng",
+                "Indomie + Telur",
+                "Indomie Spesial",
+                "Mie Dog"
+            ]
+        },
+        {
+            "name": "ALA CARTE",
+            "menus": [
+                "Nasi",
+                "Ayam Bakar Madu",
+                "Ayam Penyet",
+                "Tahu",
+                "Tempe",
+                "Telur"
+            ]
+        },
+        {
+            "name": "DESSERT",
+            "menus": [
+                "Bukopandan",
+                "Tiramisusu Mini"
+            ]
+        },
+        {
+            "name": "Roti Bakar",
+            "menus": [
+                "Roti Bakar Choco",
+                "Roti Bakar Matcha",
+                "Roti Bakar Kacang",
+                "Roti Bakar Strawberry",
+                "Roti Bakar Tiramisu",
+                "Roti Bakar Keju",
+                "Roti Bakar Choco Crunchy",
+                "Tambah Topping",
+                "Tambah Topping Keju/Choco Crunchy"
+            ]
+        },
+        {
+            "name": "SNACK",
+            "menus": [
+                "Kentang Goreng",
+                "Kentang Sosis",
+                "Risoles Mayo",
+                "Cireng Bumbu Rujak",
+                "Piscok Lumer",
+                "Bala-Bala",
+                "Tempe Mendoan"
+            ]
+        },
+        {
+            "name": "Coffee Based",
+            "menus": [
+                "Kopi Hitam",
+                "Es Kopi Susu",
+                "Cappuccino"
+            ]
+        },
+        {
+            "name": "Kopi Sachet",
+            "menus": [
+                "Good Day",
+                "Kapal Api",
+                "ABC Susu",
+                "Indocafe",
+                "Creamy Latte"
+            ]
+        },
+        {
+            "name": "Choco Based",
+            "menus": [
+                "Chocolate",
+                "Choco Hazelnut",
+                "Milo"
+            ]
+        },
+        {
+            "name": "Artisan Tea",
+            "menus": [
+                "The Tawar",
+                "The Manis",
+                "Lemon Tea",
+                "The Tarik"
+            ]
+        },
+        {
+            "name": "Non Coffee",
+            "menus": [
+                "Jeruk Panas/Dingin",
+                "Josu",
+                "Taro",
+                "Red Velvet",
+                "Matcha",
+                "Air Mineral",
+                "Bandrek",
+                "Bajigur",
+                "Wedang",
+                "Energen",
+                "STMJ"
+            ]
+        },
+        {
+            "name": "DIMSUM",
+            "menus": [
+                "Bakpau Ayam Casiu",
+                "Bakpau Kungfu",
+                "Kaki Ayam",
+                "Siomay",
+                "Si Spicy",
+                "Pangsit Ayam Sayur",
+                "Wo Tiek",
+                "Lumpia Kulit Tahu",
+                "Keichak",
+                "Si Merry",
+                "Si Veggie",
+                "Chicken Ball",
+                "Ubur-Ubur",
+                "Segitiga Bermuda",
+                "Titanic",
+                "Si Snowy",
+                "Si Nori",
+                "Hakau",
+                "Xialong Pao",
+                "Ufo",
+                "Sushi",
+                "Si Cheezy",
+                "Siomay Crab",
+                "Bakpao Galau",
+                "Bakpao Pandan",
+                "Bakpao Durian"
+            ]
+        },
+        {
+            "name": "Keripik",
+            "menus": [
+                "Kicimpring",
+                "Keripik Pisang Besar",
+                "Keripik Pisang Kecil",
+                "Keripik Bayam",
+                "Keripik Singkong",
+                "Keripik Ubi Ungu",
+                "Pangsit",
+                "Keripik Singkong Kecil",
+                "Suwit",
+                "Bawang Goreng"
+            ]
+        },
+        {
+            "name": "Rokok",
+            "menus": [
+                "Garpit Keteng",
+                "Signatur Biru",
+                "Patra",
+                "Garpit Bungkus",
+                "Signatur",
+                "16 Filter Coklat",
+                "16 GG Mild",
+                "16 Surya Pro Merah",
+                "12 Filter Coklat",
+                "Gudang Garam Merah",
+                "16 GG Mild Shiver",
+                "16 Surya Pro Mild LEP",
+                "16 Special Delux",
+                "12 Special Delux",
+                "16 Surya Merah",
+                "Garpit Setengah",
+                "Signatur Setengah"
+            ]
+        }
+    ],
+    "raw_materials": [
+        {
+            "name": "Lemon tea",
+            "buy_price": 20000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Tahu",
+            "buy_price": 15000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Tempe",
+            "buy_price": 30000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Bumbu Racik",
+            "buy_price": 10000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Cengek",
+            "buy_price": 10000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Gooday",
+            "buy_price": 20000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Gula",
+            "buy_price": 17000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "The Celup",
+            "buy_price": 250000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Ayam Bakar",
+            "buy_price": 20000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Ayam Penyet",
+            "buy_price": 11000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Rokok",
+            "buy_price": 162450.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Es Batu",
+            "buy_price": 20000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Pengukur air",
+            "buy_price": 15000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Tisu",
+            "buy_price": 37000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Good Day",
+            "buy_price": 290000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Kapal Api",
+            "buy_price": 70000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Indocafe",
+            "buy_price": 15000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Indomie Goreng 1 Dus",
+            "buy_price": 111000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Indomie Rebus 1 Dus",
+            "buy_price": 106000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "The Tarik",
+            "buy_price": 110000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "SKM",
+            "buy_price": 57000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Nescaffe",
+            "buy_price": 50000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Kentang",
+            "buy_price": 35000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Sosis",
+            "buy_price": 76000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Telur",
+            "buy_price": 40000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Gas",
+            "buy_price": 25000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Galon",
+            "buy_price": 15000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Telor 1KG",
+            "buy_price": 30000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Dimsum",
+            "buy_price": 10000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Bubuk Matcha",
+            "buy_price": 61000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Bubuk Choclate",
+            "buy_price": 61000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Chile Oil",
+            "buy_price": 40000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Beras",
+            "buy_price": 15000.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Garpit Kretek",
+            "buy_price": 16300.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Signature",
+            "buy_price": 22100.0,
+            "unit": "pcs"
+        },
+        {
+            "name": "Garpit",
+            "buy_price": 24150.0,
+            "unit": "pcs"
+        }
+    ],
+    "expense_categories": [
+        "Air",
+        "Bahan Habis Pakai",
+        "Bensin",
+        "Cup Kertas",
+        "Cup Plastik",
+        "Gaji",
+        "Gas",
+        "Listrik",
+        "Maintenance",
+        "Makan Karyawan",
+        "Ongkir Ayam Bakar",
+        "Pengukur Air",
+        "WiFi"
+    ]
+}
