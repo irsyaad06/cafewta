@@ -3,7 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RecipeResource\Pages;
-use App\Models\Recipe;
+use App\Models\Menu;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecipeResource extends Resource
 {
-    protected static ?string $model = Recipe::class;
+    protected static ?string $model = Menu::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
@@ -27,43 +27,54 @@ class RecipeResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Card::make()
                     ->schema([
-                        Forms\Components\Select::make('menu_id')
-                            ->relationship('menu', 'name')
-                            ->label('Menu')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nama Menu')
+                            ->disabled()
+                            ->dehydrated(false),
 
-                        Forms\Components\Select::make('raw_material_id')
-                            ->relationship('rawMaterial', 'name')
-                            ->label('Bahan Baku')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                        Forms\Components\Repeater::make('recipes')
+                            ->relationship('recipes')
+                            ->label('Bahan Baku / Resep')
+                            ->schema([
+                                Forms\Components\Select::make('raw_material_id')
+                                    ->relationship('rawMaterial', 'name')
+                                    ->label('Bahan Baku')
+                                    ->searchable()
+                                    ->preload()
+                                    ->required(),
 
-                        Forms\Components\TextInput::make('quantity')
-                            ->label('Jumlah Takaran')
-                            ->numeric()
-                            ->required(),
+                                Forms\Components\TextInput::make('quantity')
+                                    ->label('Jumlah Takaran')
+                                    ->numeric()
+                                    ->required(),
 
-                        Forms\Components\TextInput::make('unit')
-                            ->label('Satuan')
-                            ->required()
-                            ->maxLength(255),
+                                Forms\Components\TextInput::make('unit')
+                                    ->label('Satuan')
+                                    ->required()
+                                    ->maxLength(255),
 
-                        Forms\Components\Textarea::make('note')
-                            ->label('Catatan')
-                            ->maxLength(65535)
+                                Forms\Components\Textarea::make('note')
+                                    ->label('Catatan')
+                                    ->maxLength(65535)
+                                    ->columnSpanFull()
+                                    ->nullable(),
+                            ])
+                            ->columns(3)
                             ->columnSpanFull()
-                            ->nullable(),
+                            ->defaultItems(0),
                     ])
-                    ->columns(2)
+                    ->columns(1)
             ]);
     }
 
@@ -71,25 +82,21 @@ class RecipeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('menu.name')
-                    ->label('Menu')
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nama Menu')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('rawMaterial.name')
+                Tables\Columns\TextColumn::make('category.name')
+                    ->label('Kategori')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('recipes.rawMaterial.name')
                     ->label('Bahan Baku')
-                    ->searchable()
+                    ->badge()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('recipes_count')
+                    ->counts('recipes')
+                    ->label('Jumlah Bahan Baku')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('quantity')
-                    ->label('Jumlah Takaran')
-                    ->numeric(3)
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('unit')
-                    ->label('Satuan')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('note')
-                    ->label('Catatan')
-                    ->searchable()
-                    ->limit(50),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
@@ -97,13 +104,8 @@ class RecipeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('menu_id')
-                    ->relationship('menu', 'name')
-                    ->label('Menu')
-                    ->searchable()
-                    ->preload(),
-                Tables\Filters\SelectFilter::make('raw_material_id')
-                    ->relationship('rawMaterial', 'name')
+                Tables\Filters\SelectFilter::make('raw_material')
+                    ->relationship('recipes.rawMaterial', 'name')
                     ->label('Bahan Baku')
                     ->searchable()
                     ->preload(),
@@ -111,14 +113,9 @@ class RecipeResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('Ubah'),
-                Tables\Actions\DeleteAction::make()
-                    ->label('Hapus'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->label('Hapus Terpilih'),
-                ]),
+                //
             ]);
     }
 
@@ -133,7 +130,6 @@ class RecipeResource extends Resource
     {
         return [
             'index' => Pages\ListRecipes::route('/'),
-            'create' => Pages\CreateRecipe::route('/create'),
             'edit' => Pages\EditRecipe::route('/{record}/edit'),
         ];
     }
