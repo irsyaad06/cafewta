@@ -23,7 +23,6 @@ class Menu extends Model
         'hpp',
         'is_available',
         'is_active',
-        'sort_order',
     ];
 
     protected function casts(): array
@@ -33,7 +32,6 @@ class Menu extends Model
             'hpp' => 'decimal:2',
             'is_available' => 'boolean',
             'is_active' => 'boolean',
-            'sort_order' => 'integer',
         ];
     }
 

@@ -14,7 +14,6 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('type');
             $table->boolean('is_active')->default(true);
-            $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

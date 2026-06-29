@@ -20,7 +20,6 @@ return new class extends Migration
             $table->decimal('hpp', 15, 2)->default(0);
             $table->boolean('is_available')->default(true);
             $table->boolean('is_active')->default(true);
-            $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

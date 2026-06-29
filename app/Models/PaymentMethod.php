@@ -16,7 +16,6 @@ class PaymentMethod extends Model
         'code',
         'type',
         'is_active',
-        'sort_order',
     ];
 
     protected function casts(): array
@@ -24,7 +23,6 @@ class PaymentMethod extends Model
         return [
             'type' => PaymentMethodType::class,
             'is_active' => 'boolean',
-            'sort_order' => 'integer',
         ];
     }
 }

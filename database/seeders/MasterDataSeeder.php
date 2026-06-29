@@ -47,7 +47,6 @@ class MasterDataSeeder extends Seeder
                                 'hpp' => 0.00,
                                 'is_available' => true,
                                 'is_active' => true,
-                                'sort_order' => ($menuIndex + 1) * 10,
                             ]
                         );
                     }
@@ -80,7 +79,6 @@ class MasterDataSeeder extends Seeder
                     [
                         'name' => $expName,
                         'is_active' => true,
-                        'sort_order' => ($index + 1) * 10,
                     ]
                 );
             }
@@ -100,7 +98,6 @@ class MasterDataSeeder extends Seeder
                     'name' => $pm['name'],
                     'type' => $pm['type'],
                     'is_active' => true,
-                    'sort_order' => ($index + 1) * 10,
                 ]
             );
         }
