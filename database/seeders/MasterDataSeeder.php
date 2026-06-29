@@ -33,7 +33,6 @@ class MasterDataSeeder extends Seeder
                     [
                         'name' => $catData['name'],
                         'is_active' => true,
-                        'sort_order' => ($index + 1) * 10,
                     ]
                 );
 

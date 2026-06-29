@@ -43,13 +43,10 @@ class CategoryResource extends Resource
                             ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => 
                                 $set('slug', Str::slug($state))),
                         
-                        Forms\Components\TextInput::make('slug')
-                            ->label('Slug')
+                        Forms\Components\Hidden::make('slug')
                             ->required()
-                            ->disabled()
                             ->dehydrated()
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(255),
+                            ->unique(ignoreRecord: true),
 
                         Forms\Components\Textarea::make('description')
                             ->label('Deskripsi')
@@ -60,12 +57,6 @@ class CategoryResource extends Resource
                             ->label('Aktif')
                             ->required()
                             ->default(true),
-
-                        Forms\Components\TextInput::make('sort_order')
-                            ->label('Urutan')
-                            ->numeric()
-                            ->default(0)
-                            ->required(),
                     ])
                     ->columns(2)
             ]);
@@ -79,16 +70,9 @@ class CategoryResource extends Resource
                     ->label('Nama')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('slug')
-                    ->label('Slug')
-                    ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktif')
                     ->boolean()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('sort_order')
-                    ->label('Urutan')
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')

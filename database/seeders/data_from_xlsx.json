@@ -243,23 +243,8 @@
             "unit": "pcs"
         },
         {
-            "name": "Rokok",
-            "buy_price": 162450.0,
-            "unit": "pcs"
-        },
-        {
             "name": "Es Batu",
             "buy_price": 20000.0,
-            "unit": "pcs"
-        },
-        {
-            "name": "Pengukur air",
-            "buy_price": 15000.0,
-            "unit": "pcs"
-        },
-        {
-            "name": "Tisu",
-            "buy_price": 37000.0,
             "unit": "pcs"
         },
         {
@@ -318,16 +303,6 @@
             "unit": "pcs"
         },
         {
-            "name": "Gas",
-            "buy_price": 25000.0,
-            "unit": "pcs"
-        },
-        {
-            "name": "Galon",
-            "buy_price": 15000.0,
-            "unit": "pcs"
-        },
-        {
             "name": "Telor 1KG",
             "buy_price": 30000.0,
             "unit": "pcs"
@@ -355,21 +330,6 @@
         {
             "name": "Beras",
             "buy_price": 15000.0,
-            "unit": "pcs"
-        },
-        {
-            "name": "Garpit Kretek",
-            "buy_price": 16300.0,
-            "unit": "pcs"
-        },
-        {
-            "name": "Signature",
-            "buy_price": 22100.0,
-            "unit": "pcs"
-        },
-        {
-            "name": "Garpit",
-            "buy_price": 24150.0,
             "unit": "pcs"
         }
     ],

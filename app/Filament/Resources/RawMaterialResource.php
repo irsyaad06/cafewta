@@ -62,13 +62,15 @@ class RawMaterialResource extends Resource
                             ->label('Stok')
                             ->numeric()
                             ->required()
-                            ->default(0),
+                            ->default(0)
+                            ->formatStateUsing(fn ($state) => $state !== null ? (float) $state : $state),
 
                         Forms\Components\TextInput::make('minimum_stock')
                             ->label('Stok Minimum')
                             ->numeric()
                             ->required()
-                            ->default(0),
+                            ->default(0)
+                            ->formatStateUsing(fn ($state) => $state !== null ? (float) $state : $state),
 
                         Forms\Components\TextInput::make('buy_price')
                             ->label('Harga Beli')
@@ -103,11 +105,11 @@ class RawMaterialResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Stok')
-                    ->numeric(3)
+                    ->formatStateUsing(fn ($state) => $state !== null ? number_format((float) $state, (floor($state) == $state) ? 0 : strlen(substr(strrchr((string)(float)$state, "."), 1)), ',', '.') : '')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('minimum_stock')
                     ->label('Stok Minimum')
-                    ->numeric(3)
+                    ->formatStateUsing(fn ($state) => $state !== null ? number_format((float) $state, (floor($state) == $state) ? 0 : strlen(substr(strrchr((string)(float)$state, "."), 1)), ',', '.') : '')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('buy_price')
                     ->label('Harga Beli')
