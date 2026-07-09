@@ -17,13 +17,11 @@ class Supplier extends Model
         'email',
         'address',
         'note',
-        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean',
         ];
     }
 

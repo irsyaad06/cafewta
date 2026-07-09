@@ -52,21 +52,12 @@ class CafeTableResource extends Resource
                             ->minValue(1)
                             ->nullable(),
 
-                        Forms\Components\TextInput::make('qr_code')
-                            ->label('Kode QR')
-                            ->maxLength(255)
-                            ->nullable(),
-
                         Forms\Components\Select::make('status')
                             ->label('Status')
                             ->options(TableStatus::class)
                             ->required()
                             ->default(TableStatus::Available->value),
 
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->required()
-                            ->default(true),
                     ])
                     ->columns(2)
             ]);
@@ -79,15 +70,15 @@ class CafeTableResource extends Resource
                 Tables\Columns\TextColumn::make('table_number')
                     ->label('Nomor Meja')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Meja')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('capacity')
                     ->label('Kapasitas')
                     ->numeric()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -97,15 +88,10 @@ class CafeTableResource extends Resource
                         TableStatus::Reserved => 'warning',
                         TableStatus::Inactive => 'gray',
                     })
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Aktif')
-                    ->boolean()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -114,11 +100,6 @@ class CafeTableResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options(TableStatus::class),
-                Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Status Aktif')
-                    ->boolean()
-                    ->trueLabel('Hanya Aktif')
-                    ->falseLabel('Hanya Non-aktif'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

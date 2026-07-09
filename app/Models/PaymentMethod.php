@@ -15,14 +15,12 @@ class PaymentMethod extends Model
         'name',
         'code',
         'type',
-        'is_active',
     ];
 
     protected function casts(): array
     {
         return [
             'type' => PaymentMethodType::class,
-            'is_active' => 'boolean',
         ];
     }
 }

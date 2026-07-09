@@ -12,14 +12,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained('categories')->cascadeOnUpdate()->restrictOnDelete();
             $table->string('name');
-            $table->string('slug');
             $table->string('sku')->nullable()->unique();
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->decimal('selling_price', 15, 2);
             $table->decimal('hpp', 15, 2)->default(0);
             $table->boolean('is_available')->default(true);
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

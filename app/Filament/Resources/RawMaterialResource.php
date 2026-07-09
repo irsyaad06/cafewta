@@ -79,10 +79,6 @@ class RawMaterialResource extends Resource
                             ->prefix('Rp')
                             ->default(0),
 
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->required()
-                            ->default(true),
                     ])
                     ->columns(2)
             ]);
@@ -95,39 +91,33 @@ class RawMaterialResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Bahan')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('supplier.name')
                     ->label('Pemasok')
-                    ->sortable()
                     ->placeholder('Tanpa Pemasok'),
                 Tables\Columns\TextColumn::make('unit')
                     ->label('Satuan')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('stock')
                     ->label('Stok')
                     ->formatStateUsing(fn ($state) => $state !== null ? number_format((float) $state, (floor($state) == $state) ? 0 : strlen(substr(strrchr((string)(float)$state, "."), 1)), ',', '.') : '')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('minimum_stock')
                     ->label('Stok Minimum')
                     ->formatStateUsing(fn ($state) => $state !== null ? number_format((float) $state, (floor($state) == $state) ? 0 : strlen(substr(strrchr((string)(float)$state, "."), 1)), ',', '.') : '')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('buy_price')
                     ->label('Harga Beli')
                     ->money('idr')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('stock_status')
                     ->label('Status Stok')
                     ->badge()
                     ->state(fn (RawMaterial $record): string => $record->stock <= $record->minimum_stock ? 'Tipis' : 'Aman')
                     ->color(fn (string $state): string => $state === 'Tipis' ? 'danger' : 'success'),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Aktif')
-                    ->boolean()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -138,11 +128,6 @@ class RawMaterialResource extends Resource
                     ->label('Pemasok')
                     ->searchable()
                     ->preload(),
-                Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Status Aktif')
-                    ->boolean()
-                    ->trueLabel('Hanya Aktif')
-                    ->falseLabel('Hanya Non-aktif'),
                 Tables\Filters\Filter::make('low_stock')
                     ->label('Stok Tipis Saja')
                     ->query(fn (Builder $query): Builder => $query->whereColumn('stock', '<=', 'minimum_stock')),

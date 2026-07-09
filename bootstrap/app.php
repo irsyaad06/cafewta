@@ -16,7 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
+            $user = $request->user();
+            if ($user && in_array($user->role, [\App\Enums\UserRole::SuperAdmin, \App\Enums\UserRole::Owner, \App\Enums\UserRole::AdminManager])) {
+                return '/admin';
+            } elseif ($user && $user->role === \App\Enums\UserRole::Cashier) {
+                return '/pos';
+            }
+            return '/dashboard';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

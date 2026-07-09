@@ -45,17 +45,6 @@ class MenuResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->label('Nama')
                             ->required()
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => 
-                                $set('slug', Str::slug($state))),
-
-                        Forms\Components\TextInput::make('slug')
-                            ->label('Slug')
-                            ->required()
-                            ->disabled()
-                            ->dehydrated()
-                            ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('sku')
@@ -72,6 +61,7 @@ class MenuResource extends Resource
                         Forms\Components\FileUpload::make('image')
                             ->label('Gambar')
                             ->image()
+                            ->disk('public')
                             ->directory('menus')
                             ->nullable(),
 
@@ -94,10 +84,6 @@ class MenuResource extends Resource
                             ->required()
                             ->default(true),
 
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->required()
-                            ->default(true),
                     ])
                     ->columns(2)
             ]);
@@ -109,22 +95,23 @@ class MenuResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
                     ->label('Gambar')
+                    ->disk('public')
                     ->circular(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('Kategori')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('selling_price')
                     ->label('Harga Jual')
                     ->money('idr')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('hpp')
                     ->label('HPP')
                     ->money('idr')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('margin')
                     ->label('Margin')
                     ->money('idr')
@@ -134,20 +121,14 @@ class MenuResource extends Resource
                 Tables\Columns\IconColumn::make('is_available')
                     ->label('Tersedia')
                     ->boolean()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Aktif')
-                    ->boolean()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->filtersFormColumns(3)
             ->filters([
-                Tables\Filters\TrashedFilter::make()
-                    ->label('Sampah'),
                 Tables\Filters\SelectFilter::make('category_id')
                     ->relationship('category', 'name')
                     ->label('Kategori')
@@ -158,12 +139,7 @@ class MenuResource extends Resource
                     ->boolean()
                     ->trueLabel('Hanya Tersedia')
                     ->falseLabel('Hanya Tidak Tersedia'),
-                Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Status Aktif')
-                    ->boolean()
-                    ->trueLabel('Hanya Aktif')
-                    ->falseLabel('Hanya Non-aktif'),
-            ])
+            ], layout: \Filament\Tables\Enums\FiltersLayout::AboveContent)
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('Ubah'),

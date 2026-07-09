@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\TableSimulationController;
+use App\Http\Controllers\CustomerOrderController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -18,10 +20,22 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Simulasi Meja & Pemesanan Mandiri (QR Code) - Public Routes
+Route::get('/simulasi-meja', [TableSimulationController::class, 'index'])->name('simulasi-meja');
+Route::get('/order/{table_number}', [CustomerOrderController::class, 'index'])->name('order.index');
+Route::post('/order/checkout', [CustomerOrderController::class, 'store'])->name('order.store');
+Route::get('/order/{table_number}/success/{transaction}', [CustomerOrderController::class, 'success'])->name('order.success');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // POS Routes
+    Route::get('/pos', [\App\Http\Controllers\PosController::class, 'index'])->name('pos.index');
+    Route::post('/pos', [\App\Http\Controllers\PosController::class, 'store'])->name('pos.store');
+    Route::get('/pos/orders', [\App\Http\Controllers\PosController::class, 'orders'])->name('pos.orders');
+    Route::patch('/pos/orders/{transaction}', [\App\Http\Controllers\PosController::class, 'updateOrderStatus'])->name('pos.updateStatus');
 });
 
 require __DIR__.'/auth.php';

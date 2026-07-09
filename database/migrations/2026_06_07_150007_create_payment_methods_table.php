@@ -13,7 +13,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('code')->unique();
             $table->string('type');
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

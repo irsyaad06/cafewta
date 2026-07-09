@@ -15,7 +15,6 @@ return new class extends Migration
             $table->unsignedInteger('capacity')->nullable();
             $table->string('qr_code')->nullable();
             $table->string('status')->default('available');
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

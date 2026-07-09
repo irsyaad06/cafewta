@@ -63,10 +63,6 @@ class SupplierResource extends Resource
                             ->columnSpanFull()
                             ->nullable(),
 
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->required()
-                            ->default(true),
                     ])
                     ->columns(2)
             ]);
@@ -79,33 +75,23 @@ class SupplierResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('phone')
                     ->label('No. Telepon')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
                     ->searchable()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Aktif')
-                    ->boolean()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()
                     ->label('Sampah'),
-                Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Status Aktif')
-                    ->boolean()
-                    ->trueLabel('Hanya Aktif')
-                    ->falseLabel('Hanya Non-aktif'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

@@ -28,25 +28,21 @@ class MasterDataSeeder extends Seeder
         // 1. Seed Categories & Menus
         if (isset($data['categories'])) {
             foreach ($data['categories'] as $index => $catData) {
-                $category = Category::updateOrCreate(
-                    ['slug' => Str::slug($catData['name'])],
-                    [
-                        'name' => $catData['name'],
-                        'is_active' => true,
-                    ]
+                $category = Category::firstOrCreate(
+                    ['name' => $catData['name']]
                 );
 
                 if (isset($catData['menus'])) {
                     foreach ($catData['menus'] as $menuIndex => $menuName) {
-                        Menu::updateOrCreate(
-                            ['slug' => Str::slug($menuName)],
+                        $dummyPrice = rand(10, 50) * 1000;
+                        $dummyHpp = $dummyPrice * 0.5;
+
+                        Menu::firstOrCreate(
+                            ['name' => $menuName, 'category_id' => $category->id],
                             [
-                                'category_id' => $category->id,
-                                'name' => $menuName,
-                                'selling_price' => 0.00,
-                                'hpp' => 0.00,
+                                'selling_price' => $dummyPrice,
+                                'hpp' => $dummyHpp,
                                 'is_available' => true,
-                                'is_active' => true,
                             ]
                         );
                     }
@@ -57,7 +53,7 @@ class MasterDataSeeder extends Seeder
         // 2. Seed Raw Materials
         if (isset($data['raw_materials'])) {
             foreach ($data['raw_materials'] as $rmData) {
-                RawMaterial::updateOrCreate(
+                RawMaterial::firstOrCreate(
                     ['name' => $rmData['name']],
                     [
                         'sku' => 'RM-' . strtoupper(Str::slug($rmData['name'])),
@@ -65,7 +61,6 @@ class MasterDataSeeder extends Seeder
                         'stock' => 0.000,
                         'minimum_stock' => 0.000,
                         'buy_price' => $rmData['buy_price'],
-                        'is_active' => true,
                     ]
                 );
             }
@@ -74,12 +69,8 @@ class MasterDataSeeder extends Seeder
         // 3. Seed Expense Categories
         if (isset($data['expense_categories'])) {
             foreach ($data['expense_categories'] as $index => $expName) {
-                ExpenseCategory::updateOrCreate(
-                    ['slug' => Str::slug($expName)],
-                    [
-                        'name' => $expName,
-                        'is_active' => true,
-                    ]
+                ExpenseCategory::firstOrCreate(
+                    ['name' => $expName]
                 );
             }
         }
@@ -97,7 +88,19 @@ class MasterDataSeeder extends Seeder
                 [
                     'name' => $pm['name'],
                     'type' => $pm['type'],
-                    'is_active' => true,
+                ]
+            );
+        }
+
+        // 5. Seed Cafe Tables
+        for ($i = 1; $i <= 15; $i++) {
+            \App\Models\CafeTable::firstOrCreate(
+                ['table_number' => strval($i)],
+                [
+                    'name' => 'Meja ' . $i,
+                    'capacity' => 4,
+                    'status' => \App\Enums\TableStatus::Available,
+                    'qr_code' => url('/order/' . $i),
                 ]
             );
         }

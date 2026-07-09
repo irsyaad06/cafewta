@@ -85,10 +85,10 @@ class RecipeResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Menu')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('Kategori')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('recipes.rawMaterial.name')
                     ->label('Bahan Baku')
                     ->badge()
@@ -96,11 +96,10 @@ class RecipeResource extends Resource
                 Tables\Columns\TextColumn::make('recipes_count')
                     ->counts('recipes')
                     ->label('Jumlah Bahan Baku')
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

@@ -50,6 +50,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $user = Auth::user();
+        if (in_array($user->role, [\App\Enums\UserRole::SuperAdmin, \App\Enums\UserRole::Owner, \App\Enums\UserRole::AdminManager])) {
+            Auth::logout();
+            
+            throw ValidationException::withMessages([
+                'email' => 'Admin tidak dapat login dari sini. Silakan login melalui /admin/login',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

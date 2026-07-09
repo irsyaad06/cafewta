@@ -15,14 +15,12 @@ class Menu extends Model
     protected $fillable = [
         'category_id',
         'name',
-        'slug',
         'sku',
         'description',
         'image',
         'selling_price',
         'hpp',
         'is_available',
-        'is_active',
     ];
 
     protected function casts(): array
@@ -31,7 +29,6 @@ class Menu extends Model
             'selling_price' => 'decimal:2',
             'hpp' => 'decimal:2',
             'is_available' => 'boolean',
-            'is_active' => 'boolean',
         ];
     }
 

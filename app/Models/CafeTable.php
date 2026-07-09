@@ -19,7 +19,6 @@ class CafeTable extends Model
         'capacity',
         'qr_code',
         'status',
-        'is_active',
     ];
 
     protected function casts(): array
@@ -27,7 +26,15 @@ class CafeTable extends Model
         return [
             'capacity' => 'integer',
             'status' => TableStatus::class,
-            'is_active' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (CafeTable $table) {
+            if (empty($table->qr_code)) {
+                $table->qr_code = url('/order/' . $table->table_number);
+            }
+        });
     }
 }

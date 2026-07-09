@@ -38,17 +38,6 @@ class ExpenseCategoryResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->label('Nama Kategori')
                             ->required()
-                            ->maxLength(255)
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => 
-                                $set('slug', Str::slug($state))),
-
-                        Forms\Components\TextInput::make('slug')
-                            ->label('Slug')
-                            ->required()
-                            ->disabled()
-                            ->dehydrated()
-                            ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
                         Forms\Components\Textarea::make('description')
@@ -57,10 +46,6 @@ class ExpenseCategoryResource extends Resource
                             ->columnSpanFull()
                             ->nullable(),
 
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->required()
-                            ->default(true),
                     ])
                     ->columns(2)
             ]);
@@ -73,28 +58,15 @@ class ExpenseCategoryResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Kategori')
                     ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('slug')
-                    ->label('Slug')
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Aktif')
-                    ->boolean()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()
                     ->label('Sampah'),
-                Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Status Aktif')
-                    ->boolean()
-                    ->trueLabel('Hanya Aktif')
-                    ->falseLabel('Hanya Non-aktif'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

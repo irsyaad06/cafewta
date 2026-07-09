@@ -12,12 +12,20 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admin@cafewta.test'],
+            ['email' => 'admin@gmail.com'],
             [
-                'name' => 'Super Admin',
+                'name' => 'Admin',
                 'password' => Hash::make('password'),
                 'role' => UserRole::SuperAdmin,
-                'is_active' => true,
+            ]
+        );
+
+        User::updateOrCreate(
+            ['email' => 'kasir@gmail.com'],
+            [
+                'name' => 'Kasir',
+                'password' => Hash::make('password'),
+                'role' => UserRole::Cashier,
             ]
         );
     }

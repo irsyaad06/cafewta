@@ -51,10 +51,6 @@ class PaymentMethodResource extends Resource
                             ->options(PaymentMethodType::class)
                             ->required(),
 
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->required()
-                            ->default(true),
                     ])
                     ->columns(2)
             ]);
@@ -67,23 +63,18 @@ class PaymentMethodResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('code')
                     ->label('Kode')
                     ->searchable()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('type')
                     ->label('Jenis')
                     ->badge()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label('Aktif')
-                    ->boolean()
-                    ->sortable(),
+                    ,
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
@@ -92,11 +83,6 @@ class PaymentMethodResource extends Resource
                 Tables\Filters\SelectFilter::make('type')
                     ->label('Jenis')
                     ->options(PaymentMethodType::class),
-                Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Status Aktif')
-                    ->boolean()
-                    ->trueLabel('Hanya Aktif')
-                    ->falseLabel('Hanya Non-aktif'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

@@ -20,7 +20,6 @@ class RawMaterial extends Model
         'stock',
         'minimum_stock',
         'buy_price',
-        'is_active',
     ];
 
     protected function casts(): array
@@ -29,7 +28,6 @@ class RawMaterial extends Model
             'stock' => 'decimal:3',
             'minimum_stock' => 'decimal:3',
             'buy_price' => 'decimal:2',
-            'is_active' => 'boolean',
         ];
     }
 
