@@ -152,7 +152,7 @@ const setActiveCategory = (categoryId) => {
             <div class="p-4 md:p-6 border-b border-gray-200">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
                     <h1 class="text-xl md:text-2xl font-bold text-gray-800">Kasir</h1>
-                    <Link :href="route('pos.orders')" class="inline-flex items-center justify-center space-x-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-colors shadow-sm relative sm:w-auto w-full">
+                    <Link :href="route('pos.orders')" class="hidden md:inline-flex items-center justify-center space-x-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-colors shadow-sm relative w-auto">
                         <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         <span class="font-bold">Pesanan</span>
                         <span v-if="pendingOrdersCount > 0" class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow ring-2 ring-white">
@@ -433,5 +433,15 @@ const setActiveCategory = (categoryId) => {
             </div>
             <span class="text-xs font-medium">Keranjang</span>
         </button>
+        <Link 
+            :href="route('pos.orders')"
+            class="flex-1 py-3 flex flex-col items-center justify-center space-y-1 relative text-gray-500 hover:text-primary-600 transition-colors"
+        >
+            <div class="relative">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                <span v-if="pendingOrdersCount > 0" class="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow">{{ pendingOrdersCount }}</span>
+            </div>
+            <span class="text-xs font-medium">Pesanan</span>
+        </Link>
     </nav>
 </template>

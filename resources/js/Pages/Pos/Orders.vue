@@ -145,7 +145,7 @@ const updateStatus = (transaction, newStatus) => {
         <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
             
             <!-- Segmented Control Tabs -->
-            <div class="flex justify-center mb-8 overflow-x-auto pb-2">
+            <div class="flex mb-8 overflow-x-auto pb-2 md:justify-center hide-scrollbar">
                 <div class="inline-flex bg-gray-200/80 p-1.5 rounded-2xl shadow-inner border border-gray-200/50 min-w-max">
                     <button 
                         @click="activeTab = 'pending'"
