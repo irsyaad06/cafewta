@@ -47,12 +47,6 @@ class MenuResource extends Resource
                             ->required()
                             ->maxLength(255),
 
-                        Forms\Components\TextInput::make('sku')
-                            ->label('SKU')
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(255)
-                            ->nullable(),
-
                         Forms\Components\Textarea::make('description')
                             ->label('Deskripsi')
                             ->maxLength(65535)

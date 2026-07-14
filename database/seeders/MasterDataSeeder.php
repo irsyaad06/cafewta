@@ -56,7 +56,6 @@ class MasterDataSeeder extends Seeder
                 RawMaterial::firstOrCreate(
                     ['name' => $rmData['name']],
                     [
-                        'sku' => 'RM-' . strtoupper(Str::slug($rmData['name'])),
                         'unit' => $rmData['unit'],
                         'stock' => 0.000,
                         'minimum_stock' => 0.000,

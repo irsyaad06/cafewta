@@ -15,7 +15,6 @@ class Menu extends Model
     protected $fillable = [
         'category_id',
         'name',
-        'sku',
         'description',
         'image',
         'selling_price',

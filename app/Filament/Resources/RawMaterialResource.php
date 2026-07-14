@@ -46,12 +46,6 @@ class RawMaterialResource extends Resource
                             ->required()
                             ->maxLength(255),
 
-                        Forms\Components\TextInput::make('sku')
-                            ->label('SKU')
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(255)
-                            ->nullable(),
-
                         Forms\Components\TextInput::make('unit')
                             ->label('Satuan')
                             ->required()

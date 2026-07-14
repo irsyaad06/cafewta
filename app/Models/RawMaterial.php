@@ -15,7 +15,6 @@ class RawMaterial extends Model
     protected $fillable = [
         'supplier_id',
         'name',
-        'sku',
         'unit',
         'stock',
         'minimum_stock',
