@@ -150,15 +150,21 @@ const setActiveCategory = (categoryId) => {
             
             <!-- Header/Filters -->
             <div class="p-4 md:p-6 border-b border-gray-200">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3">
+                <div class="flex justify-between items-center mb-4 gap-3">
                     <h1 class="text-xl md:text-2xl font-bold text-gray-800">Kasir</h1>
-                    <Link :href="route('pos.orders')" class="hidden md:inline-flex items-center justify-center space-x-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-colors shadow-sm relative w-auto">
-                        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        <span class="font-bold">Pesanan</span>
-                        <span v-if="pendingOrdersCount > 0" class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow ring-2 ring-white">
-                            {{ pendingOrdersCount }}
-                        </span>
-                    </Link>
+                    <div class="flex items-center gap-2">
+                        <Link :href="route('pos.orders')" class="hidden md:inline-flex items-center justify-center space-x-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-colors shadow-sm relative w-auto">
+                            <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                            <span class="font-bold">Pesanan</span>
+                            <span v-if="pendingOrdersCount > 0" class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white shadow ring-2 ring-white">
+                                {{ pendingOrdersCount }}
+                            </span>
+                        </Link>
+                        <Link :href="route('logout')" method="post" as="button" class="inline-flex items-center justify-center space-x-1 md:space-x-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 md:px-4 py-2 rounded-xl transition-colors shadow-sm w-auto">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            <span class="font-bold text-sm md:text-base hidden sm:inline">Logout</span>
+                        </Link>
+                    </div>
                 </div>
                 
                 <!-- Search & Category Filter -->
