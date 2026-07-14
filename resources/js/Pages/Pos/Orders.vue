@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import html2canvas from 'html2canvas';
 
 const props = defineProps({
     transactions: Array,
@@ -28,6 +29,11 @@ watch([searchQuery, periodQuery], ([search, period]) => {
 const activeTab = ref('pending'); // 'pending' or 'completed'
 const selectedTransaction = ref(null);
 const isPaymentModalOpen = ref(false);
+const isSuccessModalOpen = ref(false);
+const successTransaction = ref(null);
+const invoiceElement = ref(null);
+const isDownloading = ref(false);
+const isPrinting = ref(false);
 
 const form = useForm({
     status: 'completed',
@@ -75,9 +81,93 @@ const submitPayment = () => {
     form.patch(route('pos.updateStatus', selectedTransaction.value.id), {
         preserveScroll: true,
         onSuccess: () => {
+            successTransaction.value = {
+                ...selectedTransaction.value,
+                status: 'completed',
+                amount_paid: form.amount_paid
+            };
             closePaymentModal();
+            isSuccessModalOpen.value = true;
         }
     });
+};
+
+const formatDateTime = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+};
+
+const downloadInvoice = async () => {
+    if (!invoiceElement.value || !successTransaction.value) return;
+    try {
+        isDownloading.value = true;
+        const canvas = await html2canvas(invoiceElement.value, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            logging: false,
+            useCORS: true
+        });
+        const link = document.createElement('a');
+        link.download = `Invoice-${successTransaction.value.invoice_number}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch (error) {
+        console.error('Download failed', error);
+        alert('Gagal mengunduh invoice.');
+    } finally {
+        isDownloading.value = false;
+    }
+};
+
+const printInvoice = () => {
+    if (!invoiceElement.value) return;
+    
+    isPrinting.value = true;
+    const printContent = invoiceElement.value.innerHTML;
+    
+    // Get all stylesheets from current document
+    let stylesHtml = '';
+    for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
+        stylesHtml += node.outerHTML;
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    iframe.contentWindow.document.open();
+    iframe.contentWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Print Invoice</title>
+            ${stylesHtml}
+            <style>
+                body { background: white !important; margin: 0; padding: 20px; font-family: sans-serif; display: flex; justify-content: center; }
+                .invoice-container { width: 100%; max-width: 400px; }
+            </style>
+        </head>
+        <body onload="setTimeout(() => { window.print(); }, 500)">
+            <div class="invoice-container">
+                ${printContent}
+            </div>
+        </body>
+        </html>
+    `);
+    iframe.contentWindow.document.close();
+    
+    // Cleanup
+    setTimeout(() => {
+        document.body.removeChild(iframe);
+        isPrinting.value = false;
+    }, 2000);
 };
 
 const updateStatus = (transaction, newStatus) => {
@@ -398,6 +488,149 @@ const updateStatus = (transaction, newStatus) => {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Success Bottom Sheet -->
+        <Transition 
+            enter-active-class="transition-opacity ease-out duration-300" 
+            enter-from-class="opacity-0" 
+            enter-to-class="opacity-100" 
+            leave-active-class="transition-opacity ease-in duration-200" 
+            leave-from-class="opacity-100" 
+            leave-to-class="opacity-0"
+        >
+            <div v-if="isSuccessModalOpen" class="fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-sm" @click="isSuccessModalOpen = false"></div>
+        </Transition>
+        
+        <Transition 
+            enter-active-class="transition ease-out duration-300 transform" 
+            enter-from-class="translate-y-full" 
+            enter-to-class="translate-y-0" 
+            leave-active-class="transition ease-in duration-200 transform" 
+            leave-from-class="translate-y-0" 
+            leave-to-class="translate-y-full"
+        >
+            <div v-if="isSuccessModalOpen" class="fixed inset-x-0 bottom-0 z-50 flex flex-col justify-end pointer-events-none w-full max-w-lg mx-auto">
+                <div class="relative bg-white w-full rounded-t-3xl shadow-2xl flex flex-col pointer-events-auto overflow-hidden">
+                    <!-- Handle -->
+                    <div class="flex justify-center p-3 shrink-0 cursor-pointer bg-white" @click="isSuccessModalOpen = false">
+                        <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+                    </div>
+                    
+                    <div class="px-8 pb-8 pt-2">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
+                            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h3 class="text-2xl font-black text-gray-900 text-center tracking-tight mb-2">Pembayaran Berhasil!</h3>
+                        <p class="text-gray-500 text-center mb-8 font-medium">Status pesanan <span class="font-bold text-gray-800">#{{ successTransaction?.invoice_number }}</span> telah diperbarui menjadi lunas.</p>
+                        
+                        <div class="space-y-3">
+                            <div class="flex gap-3">
+                                <button 
+                                    @click="printInvoice"
+                                    :disabled="isPrinting"
+                                    class="flex-1 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+                                >
+                                    <svg v-if="!isPrinting" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                    <svg v-else class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    Print
+                                </button>
+                                <button 
+                                    @click="downloadInvoice"
+                                    :disabled="isDownloading"
+                                    class="flex-1 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md active:scale-95"
+                                >
+                                    <svg v-if="!isDownloading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    <svg v-else class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    Download
+                                </button>
+                            </div>
+                            
+                            <button 
+                                @click="isSuccessModalOpen = false" 
+                                class="w-full py-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-2xl transition-colors active:scale-95"
+                            >
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- Hidden Invoice Template for Print/Download -->
+        <div class="fixed top-0 left-[9999px] z-[-1] bg-white w-[400px] p-8" ref="invoiceElement">
+            <div v-if="successTransaction" class="bg-white">
+                <div class="text-center mb-6 pt-2 flex flex-col items-center">
+                    <div class="w-16 h-16 mb-2">
+                        <img src="/logo.png" alt="Cafe Logo" class="w-full h-full object-contain" />
+                    </div>
+                    <h2 class="text-2xl font-black text-gray-900 tracking-tight">INVOICE</h2>
+                    <p class="text-gray-500 font-medium">{{ successTransaction.invoice_number }}</p>
+                </div>
+
+                <div class="flex justify-between items-end mb-6 pb-6 border-b border-gray-100">
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Tanggal</p>
+                        <p class="font-bold text-gray-800">{{ formatDateTime(successTransaction.created_at) }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Tipe Pesanan</p>
+                        <p class="font-bold text-gray-800">{{ successTransaction.cafe_table ? `Meja ${successTransaction.cafe_table.table_number}` : 'Takeaway' }}</p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <ul class="space-y-4">
+                        <li v-for="item in successTransaction.transaction_details" :key="item.id" class="flex justify-between items-start text-sm">
+                            <div class="flex items-start gap-3">
+                                <span class="font-black text-gray-800">{{ item.quantity }}x</span>
+                                <div>
+                                    <p class="text-gray-800 font-bold">{{ item.menu_name }}</p>
+                                    <p class="text-xs text-gray-500">{{ formatCurrency(item.price || (item.subtotal / item.quantity)) }}</p>
+                                </div>
+                            </div>
+                            <span class="text-gray-900 font-bold">{{ formatCurrency(item.subtotal) }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-100">
+                    <div class="space-y-2 mb-3 pb-3 border-b border-gray-200 border-dashed">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-500 font-medium">Subtotal</span>
+                            <span class="font-bold text-gray-800">{{ formatCurrency(successTransaction.subtotal) }}</span>
+                        </div>
+                        <div v-if="successTransaction.tax_amount > 0" class="flex justify-between text-sm">
+                            <span class="text-gray-500 font-medium">Pajak</span>
+                            <span class="font-bold text-gray-800">{{ formatCurrency(successTransaction.tax_amount) }}</span>
+                        </div>
+                        <div v-if="successTransaction.discount_amount > 0" class="flex justify-between text-sm">
+                            <span class="text-gray-500 font-medium">Diskon</span>
+                            <span class="font-bold text-green-600">-{{ formatCurrency(successTransaction.discount_amount) }}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-800 font-black uppercase tracking-wider">Total</span>
+                        <span class="text-2xl font-black text-primary-600">{{ formatCurrency(successTransaction.total_amount) }}</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center bg-white border border-gray-200 rounded-xl p-4">
+                    <div>
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Pembayaran</p>
+                        <p class="font-bold text-gray-800">{{ successTransaction.payment_method?.name || 'Tunai' }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Status</p>
+                        <span :class="['px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider', 
+                            successTransaction.status === 'pending' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+                        ]">
+                            {{ successTransaction.status === 'pending' ? 'Belum Lunas' : 'Lunas' }}
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 

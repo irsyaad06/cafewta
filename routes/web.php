@@ -26,6 +26,8 @@ Route::get('/order/{table_number}', [CustomerOrderController::class, 'index'])->
 Route::post('/order/checkout', [CustomerOrderController::class, 'store'])->name('order.store');
 Route::get('/order/{table_number}/success/{transaction}', [CustomerOrderController::class, 'success'])->name('order.success');
 
+// Tracking Pesanan
+Route::get('/tracking/{invoice_number}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

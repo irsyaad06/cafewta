@@ -25,6 +25,24 @@ const formatDate = (dateString) => {
         minute: '2-digit'
     });
 };
+
+let intervalId = null;
+
+import { onMounted, onUnmounted } from 'vue';
+import { router } from '@inertiajs/vue3';
+
+onMounted(() => {
+    // Polling setiap 5 detik jika status masih pending
+    intervalId = setInterval(() => {
+        if (props.transaction.status === 'pending') {
+            router.reload({ only: ['transaction'], preserveScroll: true, preserveState: true });
+        }
+    }, 5000);
+});
+
+onUnmounted(() => {
+    if (intervalId) clearInterval(intervalId);
+});
 </script>
 
 <template>
@@ -80,9 +98,19 @@ const formatDate = (dateString) => {
                     </div>
                 </div>
 
-                <div class="bg-orange-50 border border-orange-100 p-4 rounded-xl flex items-start gap-3">
+                <div v-if="transaction.status === 'pending'" class="bg-orange-50 border border-orange-100 p-4 rounded-xl flex items-start gap-3">
                     <svg class="w-6 h-6 text-orange-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     <p class="text-sm font-medium text-orange-800 leading-snug">Mohon segera selesaikan pembayaran di kasir agar pesanan Anda dapat segera kami proses.</p>
+                </div>
+                
+                <div v-else class="bg-green-50 border border-green-100 p-5 rounded-xl flex flex-col gap-4">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-sm font-bold text-green-800 leading-snug">Pesanan sudah dibayar dan sedang diproses!</p>
+                    </div>
+                    <Link :href="route('tracking.show', transaction.invoice_number)" class="w-full text-center py-3 bg-green-500 text-white rounded-xl font-bold hover:bg-green-600 transition-colors shadow-sm">
+                        Lihat Progress Pesanan
+                    </Link>
                 </div>
 
             </div>

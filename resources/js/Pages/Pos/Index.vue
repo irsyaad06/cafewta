@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, useForm, Link } from '@inertiajs/vue3';
+import { Head, useForm, Link, usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
     menus: Array,
@@ -11,6 +11,8 @@ const props = defineProps({
     errors: Object,
 });
 
+const page = usePage();
+
 // State
 const activeCategory = ref('');
 const searchQuery = ref('');
@@ -18,6 +20,7 @@ const cart = ref([]);
 const isCheckoutModalOpen = ref(false);
 const isSuccessModalOpen = ref(false);
 const successChangeAmount = ref(0);
+const successInvoiceNumber = ref('');
 const activeMobileTab = ref('menu'); // 'menu' or 'cart'
 
 const form = useForm({
@@ -126,6 +129,7 @@ const submitCheckout = () => {
         onSuccess: () => {
             cart.value = [];
             closeCheckout();
+            successInvoiceNumber.value = page.props.flash?.invoice_number || '';
             isSuccessModalOpen.value = true;
         }
     });
@@ -401,18 +405,28 @@ const setActiveCategory = (categoryId) => {
                     <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg relative z-10">
                         <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <h3 class="text-2xl font-extrabold text-white relative z-10 tracking-tight">Transaksi Berhasil!</h3>
+                    <h3 class="text-2xl font-extrabold text-white relative z-10 tracking-tight">Pesanan Sudah Dibayar!</h3>
                 </div>
                 
-                <div class="p-6">
-                    <p class="text-gray-500 mb-2 font-medium">Uang Kembalian</p>
-                    <p class="text-3xl font-black text-green-600 mb-6">{{ formatCurrency(successChangeAmount) }}</p>
+                <div class="p-6 flex flex-col gap-3">
+                    <div>
+                        <p class="text-gray-500 mb-1 font-medium">Uang Kembalian</p>
+                        <p class="text-3xl font-black text-green-600">{{ formatCurrency(successChangeAmount) }}</p>
+                    </div>
                     
+                    <Link
+                        v-if="successInvoiceNumber"
+                        :href="route('tracking.show', successInvoiceNumber)"
+                        class="w-full mt-4 py-3 rounded-xl font-bold text-white bg-green-500 hover:bg-green-600 shadow-lg transition-all"
+                    >
+                        Lihat Progress Pesanan
+                    </Link>
+
                     <button 
                         @click="isSuccessModalOpen = false"
                         class="w-full py-3 rounded-xl font-bold text-white bg-primary-600 hover:bg-primary-700 hover:shadow-primary-500/30 shadow-lg transition-all"
                     >
-                        Selesai & Lanjut
+                        Tutup
                     </button>
                 </div>
             </div>

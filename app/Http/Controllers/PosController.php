@@ -184,7 +184,9 @@ class PosController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Transaction completed successfully.');
+            return redirect()->back()
+                ->with('success', 'Transaction completed successfully.')
+                ->with('invoice_number', $transaction->invoice_number);
 
         } catch (\Exception $e) {
             DB::rollBack();
