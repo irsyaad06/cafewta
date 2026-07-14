@@ -153,7 +153,8 @@ class MenuResource extends Resource
                     Tables\Actions\RestoreBulkAction::make()
                         ->label('Pulihkan Terpilih'),
                 ]),
-            ]);
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array
