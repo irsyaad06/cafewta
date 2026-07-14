@@ -37,6 +37,8 @@ class AuthenticatedSessionController extends Controller
 
         if ($user->role === \App\Enums\UserRole::Cashier) {
             return redirect()->intended(route('pos.index', absolute: false));
+        } elseif (in_array($user->role, [\App\Enums\UserRole::Kitchen, \App\Enums\UserRole::Waiter])) {
+            return redirect()->intended(route('pos.orders', absolute: false));
         }
 
         return redirect()->intended(route('dashboard', absolute: false));

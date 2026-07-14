@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { Head, Link, useForm, router } from '@inertiajs/vue3';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/vue3';
 import html2canvas from 'html2canvas';
+
+const page = usePage();
+const userRole = computed(() => page.props.auth?.user?.role);
+const isDapurOrPelayan = computed(() => userRole.value === 'kitchen' || userRole.value === 'waiter');
 
 const props = defineProps({
     transactions: Array,
@@ -26,7 +30,7 @@ watch([searchQuery, periodQuery], ([search, period]) => {
     }, 300);
 });
 
-const activeTab = ref('pending'); // 'pending' or 'completed'
+const activeTab = ref(userRole.value === 'kitchen' ? 'completed' : (userRole.value === 'waiter' ? 'cooking' : 'pending'));
 const selectedTransaction = ref(null);
 const isPaymentModalOpen = ref(false);
 const isSuccessModalOpen = ref(false);
@@ -188,7 +192,7 @@ const updateStatus = (transaction, newStatus) => {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 sm:py-0 sm:h-20 gap-4">
                     <div class="flex items-center gap-4">
-                        <Link :href="route('pos.index')" class="p-2.5 bg-gray-50 rounded-xl hover:bg-gray-100 text-gray-600 hover:text-primary-600 transition-all border border-gray-200">
+                        <Link v-if="!isDapurOrPelayan" :href="route('pos.index')" class="p-2.5 bg-gray-50 rounded-xl hover:bg-gray-100 text-gray-600 hover:text-primary-600 transition-all border border-gray-200">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                         </Link>
                         <div>
@@ -197,35 +201,49 @@ const updateStatus = (transaction, newStatus) => {
                         </div>
                     </div>
                     
-                    <!-- Filters -->
-                    <div class="flex w-full sm:w-auto items-center gap-3">
-                        <div class="relative flex-1 sm:flex-none">
-                            <select 
-                                v-model="periodQuery"
-                                class="w-full sm:w-auto appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm font-bold rounded-xl focus:ring-primary-500 focus:border-primary-500 block px-4 py-2.5 pr-10 shadow-sm"
-                            >
-                                <option value="today">Hari Ini</option>
-                                <option value="yesterday">Kemarin</option>
-                                <option value="this_week">Minggu Ini</option>
-                                <option value="this_month">Bulan Ini</option>
-                                <option value="all_time">Semua Waktu</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <!-- Filters or Role Info -->
+                    <div class="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-3">
+                        <template v-if="!isDapurOrPelayan">
+                            <div class="relative flex-1 sm:flex-none">
+                                <select 
+                                    v-model="periodQuery"
+                                    class="w-full sm:w-auto appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm font-bold rounded-xl focus:ring-primary-500 focus:border-primary-500 block px-4 py-2.5 pr-10 shadow-sm"
+                                >
+                                    <option value="today">Hari Ini</option>
+                                    <option value="yesterday">Kemarin</option>
+                                    <option value="this_week">Minggu Ini</option>
+                                    <option value="this_month">Bulan Ini</option>
+                                    <option value="all_time">Semua Waktu</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="relative flex-1 sm:flex-none">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            
+                            <div class="relative flex-1 sm:flex-none">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                                <input 
+                                    type="text" 
+                                    v-model="searchQuery" 
+                                    placeholder="Cari invoice..."
+                                    class="w-full sm:w-64 pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-900 text-sm font-medium rounded-xl focus:ring-primary-500 focus:border-primary-500 shadow-sm transition-colors"
+                                >
                             </div>
-                            <input 
-                                type="text" 
-                                v-model="searchQuery" 
-                                placeholder="Cari invoice..."
-                                class="w-full sm:w-64 pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 text-gray-900 text-sm font-medium rounded-xl focus:ring-primary-500 focus:border-primary-500 shadow-sm transition-colors"
-                            >
+                        </template>
+
+                        <div v-else class="flex items-center gap-3">
+                            <span class="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm font-bold border border-gray-200">
+                                Login sebagai: {{ userRole === 'kitchen' ? 'Dapur' : 'Pelayan' }}
+                            </span>
                         </div>
+
+                        <!-- Logout Button -->
+                        <Link :href="route('logout')" method="post" as="button" class="inline-flex items-center justify-center space-x-1 md:space-x-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 md:px-4 py-2 rounded-xl transition-colors shadow-sm w-auto">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            <span class="font-bold text-sm md:text-base hidden sm:inline">Logout</span>
+                        </Link>
                     </div>
                 </div>
             </div>

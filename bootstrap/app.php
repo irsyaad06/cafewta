@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(prepend: [
+            \App\Http\Middleware\TabSessionMiddleware::class,
+        ]);
+        
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
@@ -22,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 return '/admin';
             } elseif ($user && $user->role === \App\Enums\UserRole::Cashier) {
                 return '/pos';
+            } elseif ($user && in_array($user->role, [\App\Enums\UserRole::Kitchen, \App\Enums\UserRole::Waiter])) {
+                return '/pos/orders';
             }
             return '/dashboard';
         });

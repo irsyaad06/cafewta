@@ -56,7 +56,7 @@ const submit = () => {
                         autofocus
                         autocomplete="username"
                         class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 sm:text-sm shadow-sm"
-                        placeholder="admin@cafewta.com"
+                        placeholder="admin@gmail.com"
                     />
                 </div>
                 <InputError class="mt-2" :message="form.errors.email" />
