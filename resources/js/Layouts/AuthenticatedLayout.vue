@@ -39,6 +39,33 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Dashboard
                                 </NavLink>
+
+                                <!-- Keuangan Dropdown -->
+                                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                                    <Dropdown align="right" width="48">
+                                        <template #trigger>
+                                            <span class="inline-flex rounded-md">
+                                                <button
+                                                    type="button"
+                                                    class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
+                                                >
+                                                    Keuangan
+                                                    <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </button>
+                                            </span>
+                                        </template>
+                                        <template #content>
+                                            <DropdownLink :href="route('finance.income')">
+                                                Pemasukan
+                                            </DropdownLink>
+                                            <DropdownLink :href="route('finance.expenses')">
+                                                Pengeluaran
+                                            </DropdownLink>
+                                        </template>
+                                    </Dropdown>
+                                </div>
                             </div>
                         </div>
 
@@ -145,6 +172,24 @@ const showingNavigationDropdown = ref(false);
                             :active="route().current('dashboard')"
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        
+                        <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase">
+                            Keuangan
+                        </div>
+                        <ResponsiveNavLink
+                            :href="route('finance.income')"
+                            :active="route().current('finance.income')"
+                            class="pl-8"
+                        >
+                            Pemasukan
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('finance.expenses')"
+                            :active="route().current('finance.expenses')"
+                            class="pl-8"
+                        >
+                            Pengeluaran
                         </ResponsiveNavLink>
                     </div>
 

@@ -38,6 +38,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/pos', [\App\Http\Controllers\PosController::class, 'store'])->name('pos.store');
     Route::get('/pos/orders', [\App\Http\Controllers\PosController::class, 'orders'])->name('pos.orders');
     Route::patch('/pos/orders/{transaction}', [\App\Http\Controllers\PosController::class, 'updateOrderStatus'])->name('pos.updateStatus');
+
+    // Keuangan Routes
+    Route::get('/finance/income', [\App\Http\Controllers\FinanceController::class, 'income'])->name('finance.income');
+    Route::get('/finance/income/export', [\App\Http\Controllers\FinanceController::class, 'exportIncome'])->name('finance.income.export');
+    
+    Route::get('/finance/expenses', [\App\Http\Controllers\FinanceController::class, 'expenses'])->name('finance.expenses');
+    Route::post('/finance/expenses', [\App\Http\Controllers\FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
+    Route::get('/finance/expenses/export', [\App\Http\Controllers\FinanceController::class, 'exportExpenses'])->name('finance.expenses.export');
 });
 
 require __DIR__.'/auth.php';

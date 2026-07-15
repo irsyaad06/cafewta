@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\TransactionResource\Pages;
+namespace App\Filament\Resources\ExpenseResource\Pages;
 
-use App\Filament\Resources\TransactionResource;
+use App\Filament\Resources\ExpenseResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
-class ListTransactions extends ListRecords
+class ListExpenses extends ListRecords
 {
-    protected static string $resource = TransactionResource::class;
+    protected static string $resource = ExpenseResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -25,32 +25,25 @@ class ListTransactions extends ListRecords
                         ->required(),
                 ])
                 ->action(function (array $data) {
-                    $count = \App\Models\Transaction::whereIn('status', ['completed', 'delivered'])
-                        ->whereDate('created_at', '>=', $data['from_date'])
-                        ->whereDate('created_at', '<=', $data['to_date'])
+                    $count = \App\Models\Expense::whereDate('date', '>=', $data['from_date'])
+                        ->whereDate('date', '<=', $data['to_date'])
                         ->count();
 
                     if ($count === 0) {
                         \Filament\Notifications\Notification::make()
                             ->title('Tidak Ada Data')
-                            ->body('Tidak ada pemasukan/transaksi pada rentang tanggal tersebut.')
+                            ->body('Tidak ada pengeluaran pada rentang tanggal tersebut.')
                             ->warning()
                             ->send();
                         return;
                     }
 
                     return \Maatwebsite\Excel\Facades\Excel::download(
-                        new \App\Exports\IncomeExport($data['from_date'], $data['to_date']),
-                        'Pemasukan_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.xlsx'
+                        new \App\Exports\ExpenseExport($data['from_date'], $data['to_date']),
+                        'Pengeluaran_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.xlsx'
                     );
                 }),
-        ];
-    }
-
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            \App\Filament\Resources\TransactionResource\Widgets\TransactionStats::class,
+            Actions\CreateAction::make(),
         ];
     }
 }

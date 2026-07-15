@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
 
 class TransactionResource extends Resource
 {
@@ -19,9 +21,9 @@ class TransactionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
     
-    protected static ?string $navigationGroup = 'Laporan';
+    protected static ?string $navigationGroup = 'Keuangan';
     
-    protected static ?string $navigationLabel = 'Pemasukan & Keuntungan';
+    protected static ?string $navigationLabel = 'Pemasukan';
     
     protected static ?string $modelLabel = 'Transaksi';
     
@@ -129,28 +131,57 @@ class TransactionResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\Filter::make('created_at')
+                Tables\Filters\Filter::make('bulan_tahun')
                     ->form([
-                        Forms\Components\DatePicker::make('created_from')->label('Dari Tanggal'),
-                        Forms\Components\DatePicker::make('created_until')->label('Sampai Tanggal'),
+                        Forms\Components\Select::make('month')
+                            ->label('Bulan')
+                            ->native(false)
+                            ->options([
+                                '01' => 'Januari',
+                                '02' => 'Februari',
+                                '03' => 'Maret',
+                                '04' => 'April',
+                                '05' => 'Mei',
+                                '06' => 'Juni',
+                                '07' => 'Juli',
+                                '08' => 'Agustus',
+                                '09' => 'September',
+                                '10' => 'Oktober',
+                                '11' => 'November',
+                                '12' => 'Desember',
+                            ]),
+                        Forms\Components\Select::make('year')
+                            ->label('Tahun')
+                            ->native(false)
+                            ->options(function () {
+                                $years = [];
+                                $currentYear = date('Y');
+                                for ($i = 0; $i < 5; $i++) {
+                                    $years[$currentYear - $i] = $currentYear - $i;
+                                }
+                                return $years;
+                            }),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                $data['month'],
+                                fn (Builder $query, $month): Builder => $query->whereMonth('created_at', $month),
                             )
                             ->when(
-                                $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                $data['year'],
+                                fn (Builder $query, $year): Builder => $query->whereYear('created_at', $year),
                             );
                     })
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
+                ExportAction::make()
             ])
             ->bulkActions([
-                // No bulk actions for now
+                Tables\Actions\BulkActionGroup::make([
+                    ExportBulkAction::make(),
+                ]),
             ]);
     }
 
