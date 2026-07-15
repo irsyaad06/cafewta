@@ -8,6 +8,7 @@ use App\Models\Supplier;
 use App\Models\RawMaterial;
 use App\Models\ExpenseCategory;
 use App\Models\PaymentMethod;
+use App\Models\Recipe;
 use App\Enums\PaymentMethodType;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -57,11 +58,33 @@ class MasterDataSeeder extends Seeder
                     ['name' => $rmData['name']],
                     [
                         'unit' => $rmData['unit'],
-                        'stock' => 0.000,
-                        'minimum_stock' => 0.000,
+                        'stock' => 1000.000,
+                        'minimum_stock' => 10.000,
                         'buy_price' => $rmData['buy_price'],
                     ]
                 );
+            }
+        }
+
+        // 3. Seed Recipes (Randomly attach 1-3 raw materials per menu)
+        $allMenus = Menu::all();
+        $allRawMaterials = RawMaterial::all();
+        
+        if ($allRawMaterials->isNotEmpty()) {
+            foreach ($allMenus as $menu) {
+                // Determine how many ingredients for this menu
+                $numIngredients = rand(1, 3);
+                $selectedRawMaterials = $allRawMaterials->random(min($numIngredients, $allRawMaterials->count()));
+
+                foreach ($selectedRawMaterials as $rm) {
+                    Recipe::firstOrCreate(
+                        ['menu_id' => $menu->id, 'raw_material_id' => $rm->id],
+                        [
+                            'quantity' => rand(1, 5),
+                            'unit' => $rm->unit,
+                        ]
+                    );
+                }
             }
         }
 

@@ -30,7 +30,7 @@ watch([searchQuery, periodQuery], ([search, period]) => {
     }, 300);
 });
 
-const activeTab = ref(userRole.value === 'kitchen' ? 'completed' : (userRole.value === 'waiter' ? 'cooking' : 'pending'));
+const activeTab = ref(userRole.value === 'kitchen' ? 'completed' : (userRole.value === 'waiter' ? 'ready' : 'pending'));
 const selectedTransaction = ref(null);
 const isPaymentModalOpen = ref(false);
 const isSuccessModalOpen = ref(false);
@@ -180,6 +180,12 @@ const updateStatus = (transaction, newStatus) => {
         preserveScroll: true,
     });
 };
+
+const canViewTab = (tab) => {
+    if (userRole.value === 'kitchen') return ['completed', 'cooking'].includes(tab);
+    if (userRole.value === 'waiter') return ['ready', 'delivered'].includes(tab);
+    return true; // Admin and Cashier can see all tabs
+};
 </script>
 
 <template>
@@ -256,6 +262,7 @@ const updateStatus = (transaction, newStatus) => {
             <div class="flex mb-8 overflow-x-auto pb-2 md:justify-center hide-scrollbar">
                 <div class="inline-flex bg-gray-200/80 p-1.5 rounded-2xl shadow-inner border border-gray-200/50 min-w-max">
                     <button 
+                        v-if="canViewTab('pending')"
                         @click="activeTab = 'pending'"
                         :class="[
                             'flex items-center justify-center px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300',
@@ -271,6 +278,7 @@ const updateStatus = (transaction, newStatus) => {
                         </span>
                     </button>
                     <button 
+                        v-if="canViewTab('completed')"
                         @click="activeTab = 'completed'"
                         :class="[
                             'flex items-center justify-center px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300',
@@ -286,6 +294,7 @@ const updateStatus = (transaction, newStatus) => {
                         </span>
                     </button>
                     <button 
+                        v-if="canViewTab('cooking')"
                         @click="activeTab = 'cooking'"
                         :class="[
                             'flex items-center justify-center px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300',
@@ -301,6 +310,23 @@ const updateStatus = (transaction, newStatus) => {
                         </span>
                     </button>
                     <button 
+                        v-if="canViewTab('ready')"
+                        @click="activeTab = 'ready'"
+                        :class="[
+                            'flex items-center justify-center px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300',
+                            activeTab === 'ready' 
+                                ? 'bg-white text-primary-600 shadow-md ring-1 ring-gray-900/5 transform scale-100' 
+                                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200 scale-95'
+                        ]"
+                    >
+                        Antar Pesanan
+                        <span v-if="props.transactions.filter(t => t.status === 'ready').length > 0" 
+                              class="ml-2.5 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-extrabold text-white bg-purple-500 rounded-full shadow-sm">
+                            {{ props.transactions.filter(t => t.status === 'ready').length }}
+                        </span>
+                    </button>
+                    <button 
+                        v-if="canViewTab('delivered')"
                         @click="activeTab = 'delivered'"
                         :class="[
                             'flex items-center justify-center px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300',
@@ -334,6 +360,7 @@ const updateStatus = (transaction, newStatus) => {
                         'bg-red-500': transaction.status === 'pending',
                         'bg-yellow-400': transaction.status === 'completed',
                         'bg-blue-500': transaction.status === 'cooking',
+                        'bg-purple-500': transaction.status === 'ready',
                         'bg-green-500': transaction.status === 'delivered',
                     }]"></div>
 
@@ -348,18 +375,21 @@ const updateStatus = (transaction, newStatus) => {
                                 'bg-red-50 text-red-600 ring-1 ring-red-200': transaction.status === 'pending',
                                 'bg-yellow-50 text-yellow-600 ring-1 ring-yellow-200': transaction.status === 'completed',
                                 'bg-blue-50 text-blue-600 ring-1 ring-blue-200': transaction.status === 'cooking',
+                                'bg-purple-50 text-purple-600 ring-1 ring-purple-200': transaction.status === 'ready',
                                 'bg-green-50 text-green-600 ring-1 ring-green-200': transaction.status === 'delivered',
                             }]">
                                 <span :class="['w-1.5 h-1.5 rounded-full', {
                                     'bg-red-500': transaction.status === 'pending',
                                     'bg-yellow-500': transaction.status === 'completed',
                                     'bg-blue-500': transaction.status === 'cooking',
+                                    'bg-purple-500': transaction.status === 'ready',
                                     'bg-green-500': transaction.status === 'delivered',
                                 }]"></span>
                                 {{ 
                                     transaction.status === 'pending' ? 'BARU' : 
                                     transaction.status === 'completed' ? 'TERBAYAR' : 
-                                    transaction.status === 'cooking' ? 'DIMASAK' : 'DIANTAR' 
+                                    transaction.status === 'cooking' ? 'DIMASAK' : 
+                                    transaction.status === 'ready' ? 'SIAP ANTAR' : 'DIANTAR' 
                                 }}
                             </span>
                         </div>
@@ -392,7 +422,7 @@ const updateStatus = (transaction, newStatus) => {
                         </div>
                         
                         <button 
-                            v-if="transaction.status === 'pending'"
+                            v-if="transaction.status === 'pending' && !isDapurOrPelayan"
                             @click="openPaymentModal(transaction)"
                             class="w-full py-3.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-primary-600 transition-all shadow-md hover:shadow-primary-500/30 flex justify-center items-center gap-2 transform active:scale-95"
                         >
@@ -401,7 +431,7 @@ const updateStatus = (transaction, newStatus) => {
                         </button>
                         
                         <button 
-                            v-if="transaction.status === 'completed'"
+                            v-if="transaction.status === 'completed' && userRole === 'kitchen'"
                             @click="updateStatus(transaction, 'cooking')"
                             :disabled="form.processing"
                             class="w-full py-3.5 bg-yellow-500 text-white font-bold rounded-xl hover:bg-yellow-600 transition-all shadow-md flex justify-center items-center gap-2 transform active:scale-95"
@@ -411,13 +441,23 @@ const updateStatus = (transaction, newStatus) => {
                         </button>
                         
                         <button 
-                            v-if="transaction.status === 'cooking'"
-                            @click="updateStatus(transaction, 'delivered')"
+                            v-if="transaction.status === 'cooking' && userRole === 'kitchen'"
+                            @click="updateStatus(transaction, 'ready')"
                             :disabled="form.processing"
                             class="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md flex justify-center items-center gap-2 transform active:scale-95"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Tandai Diantarkan
+                            Selesai Dimasak
+                        </button>
+
+                        <button 
+                            v-if="transaction.status === 'ready' && userRole === 'waiter'"
+                            @click="updateStatus(transaction, 'delivered')"
+                            :disabled="form.processing"
+                            class="w-full py-3.5 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all shadow-md flex justify-center items-center gap-2 transform active:scale-95"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Sudah Diantar
                         </button>
 
                     </div>

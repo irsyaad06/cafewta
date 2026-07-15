@@ -63,14 +63,33 @@ class PosController extends Controller
     public function updateOrderStatus(Request $request, Transaction $transaction)
     {
         $validated = $request->validate([
-            'status' => 'required|in:pending,completed,cooking,delivered',
+            'status' => 'required|in:pending,completed,cooking,ready,delivered',
             'amount_paid' => 'nullable|numeric|min:0'
         ]);
 
         try {
             DB::beginTransaction();
 
+            $originalStatus = $transaction->getOriginal('status');
             $transaction->status = $validated['status'];
+
+            // Cek jika status berubah menjadi 'ready', kurangi stok bahan baku
+            if ($validated['status'] === 'ready' && $originalStatus !== 'ready') {
+                $transaction->load('transactionDetails.menu.recipes.rawMaterial');
+                
+                foreach ($transaction->transactionDetails as $detail) {
+                    if ($detail->menu && $detail->menu->recipes) {
+                        foreach ($detail->menu->recipes as $recipe) {
+                            $rawMaterial = $recipe->rawMaterial;
+                            if ($rawMaterial) {
+                                // Kurangi stok: kuantitas resep * jumlah porsi yang dipesan
+                                $rawMaterial->stock -= ($recipe->quantity * $detail->quantity);
+                                $rawMaterial->save();
+                            }
+                        }
+                    }
+                }
+            }
 
             // Cek pembayaran jika status diubah ke completed
             if ($validated['status'] === 'completed') {

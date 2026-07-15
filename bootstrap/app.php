@@ -20,6 +20,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'logout',
+            'pos',
+            'pos/*',
+            'order/*',
+        ]);
+
         $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
             $user = $request->user();
             if ($user && in_array($user->role, [\App\Enums\UserRole::SuperAdmin, \App\Enums\UserRole::Owner, \App\Enums\UserRole::AdminManager])) {
