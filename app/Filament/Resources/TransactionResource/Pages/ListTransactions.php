@@ -113,4 +113,19 @@ class ListTransactions extends ListRecords
             \App\Filament\Resources\TransactionResource\Widgets\TransactionStats::class,
         ];
     }
+
+    public function getWidgetData(): array
+    {
+        $data = parent::getWidgetData();
+        $data['tableColumnSearches'] = $data['tableColumnSearches'] ?? [];
+        return $data;
+    }
+
+    public function updatedTableFilters(): void
+    {
+        if (method_exists(parent::class, 'updatedTableFilters')) {
+            parent::updatedTableFilters();
+        }
+        $this->dispatch('updateWidgetFilters', filters: $this->tableFilters);
+    }
 }

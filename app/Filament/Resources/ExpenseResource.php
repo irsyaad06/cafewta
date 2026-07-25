@@ -105,11 +105,11 @@ class ExpenseResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['date_from'],
+                                $data['date_from'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
                             )
                             ->when(
-                                $data['date_until'],
+                                $data['date_until'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
                             );
                     })
