@@ -19,9 +19,17 @@ class ListExpenses extends ListRecords
 
     public function exportExcelAction(): \Filament\Actions\Action
     {
-        return \Filament\Actions\Action::make('exportExcel')
+        return \Filament\Actions\ExportAction::make('exportExcel')
             ->label('Export Excel')
             ->color('success')
+            ->exporter(\App\Filament\Exports\PengeluaranExporter::class);
+    }
+
+    public function exportPdfAction(): \Filament\Actions\Action
+    {
+        return \Filament\Actions\Action::make('exportPdf')
+            ->label('Export PDF')
+            ->color('danger')
             ->form([
                 \Filament\Forms\Components\DatePicker::make('from_date')
                     ->label('Dari Tanggal')
@@ -44,10 +52,21 @@ class ListExpenses extends ListRecords
                     return;
                 }
 
-                return \Maatwebsite\Excel\Facades\Excel::download(
-                    new \App\Exports\ExpenseExport($data['from_date'], $data['to_date']),
-                    'Pengeluaran_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.xlsx'
-                );
+                $expenses = \App\Models\Expense::with(['category', 'user'])
+                    ->whereDate('date', '>=', $data['from_date'])
+                    ->whereDate('date', '<=', $data['to_date'])
+                    ->orderBy('date', 'desc')
+                    ->get();
+
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pengeluaran', [
+                    'expenses' => $expenses,
+                    'fromDate' => \Carbon\Carbon::parse($data['from_date'])->format('d/m/Y'),
+                    'toDate' => \Carbon\Carbon::parse($data['to_date'])->format('d/m/Y'),
+                ]);
+
+                return response()->streamDownload(function () use ($pdf) {
+                    echo $pdf->output();
+                }, 'Pengeluaran_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.pdf');
             });
     }
 

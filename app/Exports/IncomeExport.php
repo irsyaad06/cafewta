@@ -3,14 +3,11 @@
 namespace App\Exports;
 
 use App\Models\Transaction;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class IncomeExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class IncomeExport implements FromView, ShouldAutoSize
 {
     protected $fromDate;
     protected $toDate;
@@ -21,7 +18,7 @@ class IncomeExport implements FromCollection, WithHeadings, WithMapping, ShouldA
         $this->toDate = $toDate;
     }
 
-    public function collection()
+    public function view(): View
     {
         $query = Transaction::with(['paymentMethod', 'user'])
             ->whereIn('status', ['completed', 'delivered']);
@@ -33,39 +30,12 @@ class IncomeExport implements FromCollection, WithHeadings, WithMapping, ShouldA
             $query->whereDate('created_at', '<=', $this->toDate);
         }
 
-        return $query->orderBy('created_at', 'desc')->get();
-    }
+        $transactions = $query->orderBy('created_at', 'desc')->get();
 
-    public function headings(): array
-    {
-        return [
-            'Tanggal',
-            'No Invoice',
-            'Kasir / User',
-            'Metode Pembayaran',
-            'Total Tagihan (Rp)',
-            'Total HPP (Rp)',
-            'Keuntungan (Rp)',
-        ];
-    }
-
-    public function map($transaction): array
-    {
-        return [
-            $transaction->created_at->format('d/m/Y H:i'),
-            $transaction->invoice_number,
-            $transaction->user ? $transaction->user->name : '-',
-            $transaction->paymentMethod ? $transaction->paymentMethod->name : '-',
-            $transaction->total_amount,
-            $transaction->total_hpp,
-            $transaction->total_profit,
-        ];
-    }
-
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            1 => ['font' => ['bold' => true]],
-        ];
+        return view('exports.income', [
+            'transactions' => $transactions,
+            'fromDate' => $this->fromDate ? \Carbon\Carbon::parse($this->fromDate)->format('d/m/Y') : '-',
+            'toDate' => $this->toDate ? \Carbon\Carbon::parse($this->toDate)->format('d/m/Y') : '-',
+        ]);
     }
 }
