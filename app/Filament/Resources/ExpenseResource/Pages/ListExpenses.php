@@ -19,10 +19,36 @@ class ListExpenses extends ListRecords
 
     public function exportExcelAction(): \Filament\Actions\Action
     {
-        return \Filament\Actions\ExportAction::make('exportExcel')
+        return \Filament\Actions\Action::make('exportExcel')
             ->label('Export Excel')
             ->color('success')
-            ->exporter(\App\Filament\Exports\PengeluaranExporter::class);
+            ->form([
+                \Filament\Forms\Components\DatePicker::make('from_date')
+                    ->label('Dari Tanggal')
+                    ->required(),
+                \Filament\Forms\Components\DatePicker::make('to_date')
+                    ->label('Sampai Tanggal')
+                    ->required(),
+            ])
+            ->action(function (array $data) {
+                $count = \App\Models\Expense::whereDate('date', '>=', $data['from_date'])
+                    ->whereDate('date', '<=', $data['to_date'])
+                    ->count();
+
+                if ($count === 0) {
+                    \Filament\Notifications\Notification::make()
+                        ->title('Tidak Ada Data')
+                        ->body('Tidak ada pengeluaran pada rentang tanggal tersebut.')
+                        ->warning()
+                        ->send();
+                    return;
+                }
+
+                return \Maatwebsite\Excel\Facades\Excel::download(
+                    new \App\Exports\ExpenseExport($data['from_date'], $data['to_date']),
+                    'Pengeluaran_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.xlsx'
+                );
+            });
     }
 
     public function exportPdfAction(): \Filament\Actions\Action

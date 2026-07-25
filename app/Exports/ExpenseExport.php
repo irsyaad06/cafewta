@@ -3,11 +3,14 @@
 namespace App\Exports;
 
 use App\Models\Expense;
-use Illuminate\Contracts\View\View;
-use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ExpenseExport implements FromView, ShouldAutoSize
+class ExpenseExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
     protected $fromDate;
     protected $toDate;
@@ -18,9 +21,9 @@ class ExpenseExport implements FromView, ShouldAutoSize
         $this->toDate = $toDate;
     }
 
-    public function view(): View
+    public function query()
     {
-        $query = Expense::with(['category', 'user']);
+        $query = Expense::query()->with(['category', 'user']);
 
         if ($this->fromDate) {
             $query->whereDate('date', '>=', $this->fromDate);
@@ -29,12 +32,35 @@ class ExpenseExport implements FromView, ShouldAutoSize
             $query->whereDate('date', '<=', $this->toDate);
         }
 
-        $expenses = $query->orderBy('date', 'desc')->get();
+        return $query->orderBy('date', 'desc');
+    }
 
-        return view('exports.expenses', [
-            'expenses' => $expenses,
-            'fromDate' => $this->fromDate ? \Carbon\Carbon::parse($this->fromDate)->format('d/m/Y') : '-',
-            'toDate' => $this->toDate ? \Carbon\Carbon::parse($this->toDate)->format('d/m/Y') : '-',
-        ]);
+    public function headings(): array
+    {
+        return [
+            'Tanggal',
+            'Kategori',
+            'Keterangan',
+            'Diinput Oleh',
+            'Nominal (Rp)',
+        ];
+    }
+
+    public function map($expense): array
+    {
+        return [
+            \Carbon\Carbon::parse($expense->date)->format('d/m/Y'),
+            $expense->category ? $expense->category->name : '-',
+            $expense->description,
+            $expense->user ? $expense->user->name : '-',
+            $expense->amount, // Returning integer purely so Excel reads it as number for SUM
+        ];
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        return [
+            1 => ['font' => ['bold' => true]],
+        ];
     }
 }
