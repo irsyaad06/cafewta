@@ -11,7 +11,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CafeTableResource extends Resource
 {
@@ -38,8 +37,8 @@ class CafeTableResource extends Resource
                         Forms\Components\TextInput::make('table_number')
                             ->label('Nomor Meja')
                             ->required()
-                            ->unique(ignoreRecord: true)
-                            ->maxLength(255),
+                            ->numeric()
+                            ->unique(ignoreRecord: true),
 
                         Forms\Components\TextInput::make('name')
                             ->label('Nama Meja')
@@ -70,7 +69,8 @@ class CafeTableResource extends Resource
                 Tables\Columns\TextColumn::make('table_number')
                     ->label('Nomor Meja')
                     ->searchable()
-                    ,
+                    ->sortable()
+                    ->numeric(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nama Meja')
                     ->searchable()
@@ -95,8 +95,6 @@ class CafeTableResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
-                    ->label('Sampah'),
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options(TableStatus::class),
@@ -106,21 +104,14 @@ class CafeTableResource extends Resource
                     ->label('Ubah'),
                 Tables\Actions\DeleteAction::make()
                     ->label('Hapus'),
-                Tables\Actions\ForceDeleteAction::make()
-                    ->label('Hapus Permanen'),
-                Tables\Actions\RestoreAction::make()
-                    ->label('Pulihkan'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->label('Hapus Terpilih'),
-                    Tables\Actions\ForceDeleteBulkAction::make()
-                        ->label('Hapus Permanen Terpilih'),
-                    Tables\Actions\RestoreBulkAction::make()
-                        ->label('Pulihkan Terpilih'),
                 ]),
-            ]);
+            ])
+            ->defaultSort('table_number');
     }
 
     public static function getRelations(): array
@@ -137,13 +128,5 @@ class CafeTableResource extends Resource
             'create' => Pages\CreateCafeTable::route('/create'),
             'edit' => Pages\EditCafeTable::route('/{record}/edit'),
         ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 }
