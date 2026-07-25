@@ -13,38 +13,47 @@ class ListTransactions extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            \Filament\Actions\Action::make('export_excel')
-                ->label('Export Excel')
-                ->color('success')
-                ->form([
-                    \Filament\Forms\Components\DatePicker::make('from_date')
-                        ->label('Dari Tanggal')
-                        ->required(),
-                    \Filament\Forms\Components\DatePicker::make('to_date')
-                        ->label('Sampai Tanggal')
-                        ->required(),
-                ])
-                ->action(function (array $data) {
-                    $count = \App\Models\Transaction::whereIn('status', ['completed', 'delivered'])
-                        ->whereDate('created_at', '>=', $data['from_date'])
-                        ->whereDate('created_at', '<=', $data['to_date'])
-                        ->count();
-
-                    if ($count === 0) {
-                        \Filament\Notifications\Notification::make()
-                            ->title('Tidak Ada Data')
-                            ->body('Tidak ada pemasukan/transaksi pada rentang tanggal tersebut.')
-                            ->warning()
-                            ->send();
-                        return;
-                    }
-
-                    return \Maatwebsite\Excel\Facades\Excel::download(
-                        new \App\Exports\IncomeExport($data['from_date'], $data['to_date']),
-                        'Pemasukan_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.xlsx'
-                    );
-                }),
         ];
+    }
+
+    public function exportExcelAction(): \Filament\Actions\Action
+    {
+        return \Filament\Actions\Action::make('exportExcel')
+            ->label('Export Excel')
+            ->color('success')
+            ->form([
+                \Filament\Forms\Components\DatePicker::make('from_date')
+                    ->label('Dari Tanggal')
+                    ->required(),
+                \Filament\Forms\Components\DatePicker::make('to_date')
+                    ->label('Sampai Tanggal')
+                    ->required(),
+            ])
+            ->action(function (array $data) {
+                $count = \App\Models\Transaction::whereIn('status', ['completed', 'delivered'])
+                    ->whereDate('created_at', '>=', $data['from_date'])
+                    ->whereDate('created_at', '<=', $data['to_date'])
+                    ->count();
+
+                if ($count === 0) {
+                    \Filament\Notifications\Notification::make()
+                        ->title('Tidak Ada Data')
+                        ->body('Tidak ada pemasukan/transaksi pada rentang tanggal tersebut.')
+                        ->warning()
+                        ->send();
+                    return;
+                }
+
+                return \Maatwebsite\Excel\Facades\Excel::download(
+                    new \App\Exports\IncomeExport($data['from_date'], $data['to_date']),
+                    'Pemasukan_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.xlsx'
+                );
+            });
+    }
+
+    public function getSubheading(): \Illuminate\Contracts\Support\Htmlable|string|null
+    {
+        return view('filament.pages.export-button-subheading');
     }
 
     protected function getHeaderWidgets(): array
