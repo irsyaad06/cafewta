@@ -24,10 +24,12 @@ class ListTransactions extends ListRecords
             ->form([
                 \Filament\Forms\Components\DatePicker::make('from_date')
                     ->label('Dari Tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()->startOfMonth()),
                 \Filament\Forms\Components\DatePicker::make('to_date')
                     ->label('Sampai Tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()->endOfMonth()),
             ])
             ->action(function (array $data) {
                 $count = \App\Models\Transaction::whereIn('status', ['completed', 'delivered'])
@@ -59,10 +61,12 @@ class ListTransactions extends ListRecords
             ->form([
                 \Filament\Forms\Components\DatePicker::make('from_date')
                     ->label('Dari Tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()->startOfMonth()),
                 \Filament\Forms\Components\DatePicker::make('to_date')
                     ->label('Sampai Tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()->endOfMonth()),
             ])
             ->action(function (array $data) {
                 $count = \App\Models\Transaction::whereIn('status', ['completed', 'delivered'])
@@ -79,11 +83,22 @@ class ListTransactions extends ListRecords
                     return;
                 }
 
-                return \Maatwebsite\Excel\Facades\Excel::download(
-                    new \App\Exports\IncomeExport($data['from_date'], $data['to_date']),
-                    'Pemasukan_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.pdf',
-                    \Maatwebsite\Excel\Excel::DOMPDF
-                );
+                $transactions = \App\Models\Transaction::with(['paymentMethod', 'user'])
+                    ->whereIn('status', ['completed', 'delivered'])
+                    ->whereDate('created_at', '>=', $data['from_date'])
+                    ->whereDate('created_at', '<=', $data['to_date'])
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pemasukan', [
+                    'transactions' => $transactions,
+                    'fromDate' => \Carbon\Carbon::parse($data['from_date'])->format('d/m/Y'),
+                    'toDate' => \Carbon\Carbon::parse($data['to_date'])->format('d/m/Y'),
+                ]);
+
+                return response()->streamDownload(function () use ($pdf) {
+                    echo $pdf->output();
+                }, 'Pemasukan_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.pdf');
             });
     }
 

@@ -94,11 +94,13 @@ class ExpenseResource extends Resource
                         Forms\Components\DatePicker::make('date_from')
                             ->label('Dari Tanggal')
                             ->native(false)
-                            ->displayFormat('d F Y'),
+                            ->displayFormat('d F Y')
+                            ->default(now()->startOfMonth()),
                         Forms\Components\DatePicker::make('date_until')
                             ->label('Hingga Tanggal')
                             ->native(false)
-                            ->displayFormat('d F Y'),
+                            ->displayFormat('d F Y')
+                            ->default(now()->endOfMonth()),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

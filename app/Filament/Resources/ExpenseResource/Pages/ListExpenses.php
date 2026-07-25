@@ -25,10 +25,12 @@ class ListExpenses extends ListRecords
             ->form([
                 \Filament\Forms\Components\DatePicker::make('from_date')
                     ->label('Dari Tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()->startOfMonth()),
                 \Filament\Forms\Components\DatePicker::make('to_date')
                     ->label('Sampai Tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()->endOfMonth()),
             ])
             ->action(function (array $data) {
                 $count = \App\Models\Expense::whereDate('date', '>=', $data['from_date'])
@@ -59,10 +61,12 @@ class ListExpenses extends ListRecords
             ->form([
                 \Filament\Forms\Components\DatePicker::make('from_date')
                     ->label('Dari Tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()->startOfMonth()),
                 \Filament\Forms\Components\DatePicker::make('to_date')
                     ->label('Sampai Tanggal')
-                    ->required(),
+                    ->required()
+                    ->default(now()->endOfMonth()),
             ])
             ->action(function (array $data) {
                 $count = \App\Models\Expense::whereDate('date', '>=', $data['from_date'])
