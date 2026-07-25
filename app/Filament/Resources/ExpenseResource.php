@@ -9,8 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+
 use Illuminate\Database\Eloquent\Builder;
 
 class ExpenseResource extends Resource
@@ -90,57 +89,35 @@ class ExpenseResource extends Resource
             ])
             ->defaultSort('date', 'desc')
             ->filters([
-                Tables\Filters\Filter::make('bulan_tahun')
+                Tables\Filters\Filter::make('rentang_tanggal')
                     ->form([
-                        Forms\Components\Select::make('month')
-                            ->label('Bulan')
+                        Forms\Components\DatePicker::make('date_from')
+                            ->label('Dari Tanggal')
                             ->native(false)
-                            ->options([
-                                '01' => 'Januari',
-                                '02' => 'Februari',
-                                '03' => 'Maret',
-                                '04' => 'April',
-                                '05' => 'Mei',
-                                '06' => 'Juni',
-                                '07' => 'Juli',
-                                '08' => 'Agustus',
-                                '09' => 'September',
-                                '10' => 'Oktober',
-                                '11' => 'November',
-                                '12' => 'Desember',
-                            ]),
-                        Forms\Components\Select::make('year')
-                            ->label('Tahun')
+                            ->displayFormat('d F Y'),
+                        Forms\Components\DatePicker::make('date_until')
+                            ->label('Hingga Tanggal')
                             ->native(false)
-                            ->options(function () {
-                                $years = [];
-                                $currentYear = date('Y');
-                                for ($i = 0; $i < 5; $i++) {
-                                    $years[$currentYear - $i] = $currentYear - $i;
-                                }
-                                return $years;
-                            }),
+                            ->displayFormat('d F Y'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['month'],
-                                fn (Builder $query, $month): Builder => $query->whereMonth('date', $month),
+                                $data['date_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '>=', $date),
                             )
                             ->when(
-                                $data['year'],
-                                fn (Builder $query, $year): Builder => $query->whereYear('date', $year),
+                                $data['date_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('date', '<=', $date),
                             );
                     })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                ExportAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    ExportBulkAction::make(),
                 ]),
             ]);
     }
