@@ -46,6 +46,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/finance/expenses', [\App\Http\Controllers\FinanceController::class, 'expenses'])->name('finance.expenses');
     Route::post('/finance/expenses', [\App\Http\Controllers\FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
     Route::get('/finance/expenses/export', [\App\Http\Controllers\FinanceController::class, 'exportExpenses'])->name('finance.expenses.export');
+
+    // Pemesanan Bahan Baku Invoice
+    Route::get('/purchases/{purchase}/invoice', [\App\Http\Controllers\PurchaseInvoiceController::class, 'show'])->name('purchases.invoice');
 });
 
 require __DIR__.'/auth.php';

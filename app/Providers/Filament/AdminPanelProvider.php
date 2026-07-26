@@ -41,6 +41,8 @@ class AdminPanelProvider extends PanelProvider
                 \Filament\Navigation\NavigationGroup::make()
                     ->label('Inventori'),
                 \Filament\Navigation\NavigationGroup::make()
+                    ->label('Manajemen Bahan'),
+                \Filament\Navigation\NavigationGroup::make()
                     ->label('Keuangan'),
                 \Filament\Navigation\NavigationGroup::make()
                     ->label('Pengaturan'),
