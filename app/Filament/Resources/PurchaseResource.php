@@ -58,6 +58,7 @@ class PurchaseResource extends Resource
                         Forms\Components\Repeater::make('items')
                             ->relationship()
                             ->label('')
+                            ->addActionLabel('Tambahkan')
                             ->schema([
                                 Forms\Components\Select::make('raw_material_id')
                                     ->label('Bahan Baku')
@@ -159,6 +160,7 @@ class PurchaseResource extends Resource
                         'dalam proses' => 'Dalam Proses',
                         'selesai' => 'Selesai',
                     ])
+                    ->disabled(fn (Purchase $record) => $record->status === 'selesai')
                     ->sortable(),
             ])
             ->filters([
@@ -170,7 +172,8 @@ class PurchaseResource extends Resource
                     ->icon('heroicon-o-document-text')
                     ->color('info')
                     ->url(fn (Purchase $record): string => route('purchases.invoice', $record)),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->hidden(fn (Purchase $record): bool => $record->status === 'selesai'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
