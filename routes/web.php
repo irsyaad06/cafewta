@@ -42,10 +42,12 @@ Route::middleware('auth')->group(function () {
     // Keuangan Routes
     Route::get('/finance/income', [\App\Http\Controllers\FinanceController::class, 'income'])->name('finance.income');
     Route::get('/finance/income/export', [\App\Http\Controllers\FinanceController::class, 'exportIncome'])->name('finance.income.export');
+    Route::get('/finance/income/export-pdf', [\App\Http\Controllers\FinanceController::class, 'exportIncomePdf'])->name('finance.income.export.pdf');
     
     Route::get('/finance/expenses', [\App\Http\Controllers\FinanceController::class, 'expenses'])->name('finance.expenses');
     Route::post('/finance/expenses', [\App\Http\Controllers\FinanceController::class, 'storeExpense'])->name('finance.expenses.store');
     Route::get('/finance/expenses/export', [\App\Http\Controllers\FinanceController::class, 'exportExpenses'])->name('finance.expenses.export');
+    Route::get('/finance/expenses/export-pdf', [\App\Http\Controllers\FinanceController::class, 'exportExpensesPdf'])->name('finance.expenses.export.pdf');
 
     // Pemesanan Bahan Baku Invoice
     Route::get('/purchases/{purchase}/invoice', [\App\Http\Controllers\PurchaseInvoiceController::class, 'show'])->name('purchases.invoice');

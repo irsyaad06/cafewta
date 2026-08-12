@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\IncomeExport;
 use App\Exports\ExpenseExport;
 use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class FinanceController extends Controller
 {
@@ -99,5 +100,74 @@ class FinanceController extends Controller
         $fileName = 'Pengeluaran_' . ($month ?? 'All') . '_' . ($year ?? 'All') . '.xlsx';
         
         return Excel::download(new ExpenseExport($month, $year), $fileName);
+    }
+
+    public function exportIncomePdf(Request $request)
+    {
+        $month = $request->input('month', Carbon::now()->format('m'));
+        $year  = $request->input('year', Carbon::now()->format('Y'));
+
+        $query = Transaction::with(['paymentMethod', 'user'])
+            ->whereIn('status', ['completed', 'delivered']);
+
+        if ($month) {
+            $query->whereMonth('created_at', $month);
+        }
+        if ($year) {
+            $query->whereYear('created_at', $year);
+        }
+
+        $transactions = $query->orderBy('created_at', 'desc')->get();
+
+        $monthNames = [
+            '01' => 'Januari', '02' => 'Februari', '03' => 'Maret',
+            '04' => 'April',   '05' => 'Mei',       '06' => 'Juni',
+            '07' => 'Juli',    '08' => 'Agustus',   '09' => 'September',
+            '10' => 'Oktober', '11' => 'November',  '12' => 'Desember',
+        ];
+
+        $fromDate = ($month ? $monthNames[$month] . ' ' : '') . ($year ?? '');
+        $toDate   = $fromDate;
+
+        $pdf = Pdf::loadView('pdf.pemasukan', compact('transactions', 'fromDate', 'toDate'))
+            ->setPaper('a4', 'landscape');
+
+        $fileName = 'Pemasukan_' . ($month ?? 'All') . '_' . ($year ?? 'All') . '.pdf';
+
+        return $pdf->download($fileName);
+    }
+
+    public function exportExpensesPdf(Request $request)
+    {
+        $month = $request->input('month', Carbon::now()->format('m'));
+        $year  = $request->input('year', Carbon::now()->format('Y'));
+
+        $query = Expense::with(['category', 'user']);
+
+        if ($month) {
+            $query->whereMonth('date', $month);
+        }
+        if ($year) {
+            $query->whereYear('date', $year);
+        }
+
+        $expenses = $query->orderBy('date', 'desc')->get();
+
+        $monthNames = [
+            '01' => 'Januari', '02' => 'Februari', '03' => 'Maret',
+            '04' => 'April',   '05' => 'Mei',       '06' => 'Juni',
+            '07' => 'Juli',    '08' => 'Agustus',   '09' => 'September',
+            '10' => 'Oktober', '11' => 'November',  '12' => 'Desember',
+        ];
+
+        $fromDate = ($month ? $monthNames[$month] . ' ' : '') . ($year ?? '');
+        $toDate   = $fromDate;
+
+        $pdf = Pdf::loadView('pdf.pengeluaran', compact('expenses', 'fromDate', 'toDate'))
+            ->setPaper('a4', 'landscape');
+
+        $fileName = 'Pengeluaran_' . ($month ?? 'All') . '_' . ($year ?? 'All') . '.pdf';
+
+        return $pdf->download($fileName);
     }
 }
