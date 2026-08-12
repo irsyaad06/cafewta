@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Pembelian Bahan Baku #{{ $purchase->id }}</title>
+    <title>Catatan Pembelian Bahan Baku #{{ $purchase->id }}</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -136,7 +136,7 @@
     <div class="invoice-container">
         <div class="header">
             <div>
-                <h1>INVOICE PEMBELIAN</h1>
+                <h1>CATATAN PEMBELIAN</h1>
                 <p>No. Pesanan: <strong>#{{ str_pad($purchase->id, 5, '0', STR_PAD_LEFT) }}</strong></p>
                 <p>Tanggal: {{ \Carbon\Carbon::parse($purchase->date)->translatedFormat('d F Y') }}</p>
             </div>
