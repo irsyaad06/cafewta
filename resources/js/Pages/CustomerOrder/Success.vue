@@ -160,13 +160,12 @@ onUnmounted(() => {
                             <p class="text-xs text-blue-400 mb-3">Tidak bisa scan? Klik tombol di bawah untuk membuka halaman pembayaran.</p>
                             <a
                                 :href="`/qris/pay/${transaction.qris_token}`"
-                                target="_blank"
                                 class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all duration-200 active:scale-95 shadow-md hover:shadow-lg"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                                 </svg>
-                                Buka Halaman Pembayaran
+                                Lanjut ke Halaman Pembayaran
                             </a>
                         </div>
                     </div>
