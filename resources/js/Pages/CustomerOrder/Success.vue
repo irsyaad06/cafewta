@@ -1,9 +1,21 @@
 <script setup>
 import { Head, Link } from '@inertiajs/vue3';
+import { onMounted, onUnmounted, computed, ref } from 'vue';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     transaction: Object,
     table_number: String,
+});
+
+const qrCodeUrl = ref('');
+
+const isQris = computed(() => {
+    return props.transaction?.payment_method?.type === 'qris';
+});
+
+const isPendingQris = computed(() => {
+    return props.transaction?.status === 'pending_qris';
 });
 
 const formatCurrency = (value) => {
@@ -28,16 +40,22 @@ const formatDate = (dateString) => {
 
 let intervalId = null;
 
-import { onMounted, onUnmounted } from 'vue';
-import { router } from '@inertiajs/vue3';
-
 onMounted(() => {
-    // Polling setiap 5 detik jika status masih pending
+    // Generate QR code URL jika metode QRIS
+    if (isQris.value && props.transaction?.qris_token) {
+        const qrisPayUrl = `${window.location.origin}/qris/pay/${props.transaction.qris_token}`;
+        // Gunakan Google Chart API untuk generate QR code (no dependency needed)
+        qrCodeUrl.value = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrisPayUrl)}&color=000000&bgcolor=ffffff&margin=10`;
+    }
+
+    // Polling setiap 3 detik untuk cek status
     intervalId = setInterval(() => {
-        if (props.transaction.status === 'pending') {
+        if (props.transaction.status === 'pending' || props.transaction.status === 'pending_qris') {
             router.reload({ only: ['transaction'], preserveScroll: true, preserveState: true });
+        } else {
+            clearInterval(intervalId);
         }
-    }, 5000);
+    }, 3000);
 });
 
 onUnmounted(() => {
@@ -87,7 +105,7 @@ onUnmounted(() => {
                     </ul>
                 </div>
 
-                <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100 mb-8">
+                <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100 mb-6">
                     <div class="flex justify-between items-center mb-2">
                         <span class="text-gray-500 font-medium">Metode Pembayaran</span>
                         <span class="font-bold text-gray-800">{{ transaction.payment_method?.name || 'Tunai' }}</span>
@@ -98,12 +116,70 @@ onUnmounted(() => {
                     </div>
                 </div>
 
-                <div v-if="transaction.status === 'pending'" class="bg-orange-50 border border-orange-100 p-4 rounded-xl flex items-start gap-3">
+                <!-- QRIS Payment Section -->
+                <div v-if="isQris && isPendingQris" class="mb-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-center">
+                        <div class="flex items-center justify-center gap-2 mb-4">
+                            <!-- QRIS Icon -->
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.524M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                            </svg>
+                            <h3 class="text-lg font-extrabold text-blue-800">Scan untuk Bayar via QRIS</h3>
+                        </div>
+
+                        <!-- QR Code -->
+                        <div class="flex justify-center mb-4">
+                            <div class="p-3 bg-white rounded-2xl shadow-md border-2 border-blue-100 inline-block">
+                                <img 
+                                    v-if="qrCodeUrl"
+                                    :src="qrCodeUrl" 
+                                    alt="QR Code Pembayaran QRIS" 
+                                    class="w-52 h-52 object-contain"
+                                />
+                                <div v-else class="w-52 h-52 flex items-center justify-center bg-gray-100 rounded-xl">
+                                    <div class="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-sm font-semibold text-blue-700 mb-1">Arahkan kamera HP Anda ke QR di atas</p>
+                        <p class="text-xs text-blue-500">QR ini akan otomatis memproses pembayaran setelah di-scan</p>
+                        
+                        <!-- Animasi loading menunggu pembayaran -->
+                        <div class="mt-4 flex items-center justify-center gap-2 text-blue-600">
+                            <div class="flex gap-1">
+                                <span class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+                                <span class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+                                <span class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+                            </div>
+                            <span class="text-sm font-medium">Menunggu pembayaran...</span>
+                        </div>
+
+                        <!-- Tombol alternatif untuk testing lokal -->
+                        <div class="mt-5 pt-4 border-t border-blue-200">
+                            <p class="text-xs text-blue-400 mb-3">Tidak bisa scan? Klik tombol di bawah untuk membuka halaman pembayaran.</p>
+                            <a
+                                :href="`/qris/pay/${transaction.qris_token}`"
+                                target="_blank"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all duration-200 active:scale-95 shadow-md hover:shadow-lg"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                                Buka Halaman Pembayaran
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status pending biasa (bukan QRIS) -->
+                <div v-else-if="transaction.status === 'pending'" class="bg-orange-50 border border-orange-100 p-4 rounded-xl flex items-start gap-3 mb-6">
                     <svg class="w-6 h-6 text-orange-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     <p class="text-sm font-medium text-orange-800 leading-snug">Mohon segera selesaikan pembayaran di kasir agar pesanan Anda dapat segera kami proses.</p>
                 </div>
                 
-                <div v-else class="bg-green-50 border border-green-100 p-5 rounded-xl flex flex-col gap-4">
+                <!-- Status completed -->
+                <div v-else-if="transaction.status === 'completed'" class="bg-green-50 border border-green-100 p-5 rounded-xl flex flex-col gap-4 mb-6">
                     <div class="flex items-start gap-3">
                         <svg class="w-6 h-6 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <p class="text-sm font-bold text-green-800 leading-snug">Pesanan sudah dibayar dan sedang diproses!</p>

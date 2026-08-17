@@ -28,6 +28,11 @@ Route::get('/order/{table_number}/success/{transaction}', [CustomerOrderControll
 
 // Tracking Pesanan
 Route::get('/tracking/{invoice_number}', [\App\Http\Controllers\TrackingController::class, 'show'])->name('tracking.show');
+
+// Simulasi QRIS Payment (Mock Bank Page)
+Route::get('/qris/pay/{token}', [\App\Http\Controllers\QrisPaymentController::class, 'show'])->name('qris.pay');
+Route::post('/qris/pay/{token}', [\App\Http\Controllers\QrisPaymentController::class, 'confirm'])->name('qris.confirm');
+Route::get('/qris/success/{token}', [\App\Http\Controllers\QrisPaymentController::class, 'success'])->name('qris.success');
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

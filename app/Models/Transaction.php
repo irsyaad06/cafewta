@@ -14,6 +14,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'invoice_number',
+        'qris_token',
         'user_id',
         'cafe_table_id',
         'payment_method_id',

@@ -8,7 +8,9 @@ use App\Models\Category;
 use App\Models\Menu;
 use App\Models\PaymentMethod;
 use App\Models\Transaction;
+use App\Enums\PaymentMethodType;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class CustomerOrderController extends Controller
@@ -76,8 +78,21 @@ class CustomerOrderController extends Controller
             $totalAmount = $subtotal + $taxAmount - $discount;
             $totalProfit = ($subtotal - $discount) - $totalHpp;
 
+            // Cek apakah metode pembayaran adalah QRIS
+            $paymentMethod = PaymentMethod::find($validated['payment_method_id']);
+            $isQris = $paymentMethod && $paymentMethod->type === PaymentMethodType::Qris;
+
+            $qrisToken = null;
+            $status = 'pending';
+
+            if ($isQris) {
+                $qrisToken = Str::uuid()->toString();
+                $status = 'pending_qris';
+            }
+
             $transaction = Transaction::create([
                 'invoice_number' => 'INV-QR-' . time() . '-' . rand(1000, 9999),
+                'qris_token' => $qrisToken,
                 'user_id' => null, // Pelanggan tidak login
                 'cafe_table_id' => $validated['cafe_table_id'],
                 'payment_method_id' => $validated['payment_method_id'],
@@ -87,9 +102,9 @@ class CustomerOrderController extends Controller
                 'total_amount' => $totalAmount,
                 'total_hpp' => $totalHpp,
                 'total_profit' => $totalProfit,
-                'amount_paid' => 0, // Belum dibayar, kasir yang akan memproses
+                'amount_paid' => 0,
                 'change_amount' => 0,
-                'status' => 'pending', // Status pending
+                'status' => $status,
             ]);
 
             foreach ($transactionDetailsData as $detailData) {
