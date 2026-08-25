@@ -82,8 +82,20 @@ class ListTransactions extends ListRecords
                     ->orderBy('created_at', 'desc')
                     ->get();
 
+                $topMenus = \Illuminate\Support\Facades\DB::table('transaction_details')
+                    ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+                    ->whereIn('transactions.status', ['completed', 'delivered'])
+                    ->whereDate('transactions.created_at', '>=', $fromDate)
+                    ->whereDate('transactions.created_at', '<=', $toDate)
+                    ->select('transaction_details.menu_name', \Illuminate\Support\Facades\DB::raw('SUM(transaction_details.quantity) as total_qty'))
+                    ->groupBy('transaction_details.menu_name')
+                    ->orderByDesc('total_qty')
+                    ->limit(10)
+                    ->get();
+
                 $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pemasukan', [
                     'transactions' => $transactions,
+                    'topMenus'     => $topMenus,
                     'fromDate'     => \Carbon\Carbon::parse($fromDate)->format('d/m/Y'),
                     'toDate'       => \Carbon\Carbon::parse($toDate)->format('d/m/Y'),
                 ])->setPaper('a4', 'landscape');

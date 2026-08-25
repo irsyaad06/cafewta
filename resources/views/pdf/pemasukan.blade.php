@@ -41,9 +41,19 @@
 </head>
 <body>
 
-    <div class="header">
-        <h2>Laporan Pemasukan</h2>
-        <p>Periode: {{ $fromDate }} s/d {{ $toDate }}</p>
+    <div style="display: table; width: 100%; margin-bottom: 20px;">
+        <div style="display: table-cell; vertical-align: middle; width: 85px;">
+            @if(file_exists(public_path('logo.png')))
+                <img src="{{ public_path('logo.png') }}" style="width: 75px; height: auto;">
+            @endif
+        </div>
+        <div style="display: table-cell; vertical-align: middle; text-align: left;">
+            <h1 style="margin: 0; font-size: 18pt;">Cafe WTA</h1>
+        </div>
+        <div style="display: table-cell; vertical-align: middle; text-align: right;">
+            <h2 style="margin: 0; font-size: 16pt;">Laporan Pemasukan</h2>
+            <p style="margin: 5px 0 0; font-size: 10pt;">Periode: {{ $fromDate }} s/d {{ $toDate }}</p>
+        </div>
     </div>
 
     <table>
@@ -94,6 +104,30 @@
             </tr>
         </tfoot>
     </table>
+
+    @if(isset($topMenus) && count($topMenus) > 0)
+    <div style="margin-top: 30px;">
+        <h3>Top 10 Menu Paling Banyak Dipesan</h3>
+        <table style="width: 50%;">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">No</th>
+                    <th>Nama Menu</th>
+                    <th class="text-right" style="width: 30%;">Total Terjual</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($topMenus as $index => $topMenu)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $topMenu->menu_name }}</td>
+                        <td class="text-right">{{ $topMenu->total_qty }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @endif
 
 </body>
 </html>

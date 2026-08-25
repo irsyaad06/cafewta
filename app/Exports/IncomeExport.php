@@ -3,14 +3,13 @@
 namespace App\Exports;
 
 use App\Models\Transaction;
-use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class IncomeExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class IncomeExport implements FromView, ShouldAutoSize, WithStyles
 {
     protected $fromDate;
     protected $toDate;
@@ -21,7 +20,7 @@ class IncomeExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
         $this->toDate = $toDate;
     }
 
-    public function query()
+    public function view(): View
     {
         $query = Transaction::query()->with(['paymentMethod', 'user'])
             ->whereIn('status', ['completed', 'delivered']);
@@ -33,33 +32,31 @@ class IncomeExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSi
             $query->whereDate('created_at', '<=', $this->toDate);
         }
 
-        return $query->orderBy('created_at', 'desc');
-    }
+        $transactions = $query->orderBy('created_at', 'desc')->get();
 
-    public function headings(): array
-    {
-        return [
-            'Tanggal',
-            'No Invoice',
-            'Kasir',
-            'Metode',
-            'Tagihan (Rp)',
-            'HPP (Rp)',
-            'Keuntungan (Rp)',
-        ];
-    }
+        $topMenusQuery = \Illuminate\Support\Facades\DB::table('transaction_details')
+            ->join('transactions', 'transaction_details.transaction_id', '=', 'transactions.id')
+            ->whereIn('transactions.status', ['completed', 'delivered']);
 
-    public function map($transaction): array
-    {
-        return [
-            $transaction->created_at->format('d/m/Y H:i'),
-            $transaction->invoice_number,
-            $transaction->user ? $transaction->user->name : '-',
-            $transaction->paymentMethod ? $transaction->paymentMethod->name : '-',
-            $transaction->total_amount,
-            $transaction->total_hpp,
-            $transaction->total_profit,
-        ];
+        if ($this->fromDate) {
+            $topMenusQuery->whereDate('transactions.created_at', '>=', $this->fromDate);
+        }
+        if ($this->toDate) {
+            $topMenusQuery->whereDate('transactions.created_at', '<=', $this->toDate);
+        }
+
+        $topMenus = $topMenusQuery->select('transaction_details.menu_name', \Illuminate\Support\Facades\DB::raw('SUM(transaction_details.quantity) as total_qty'))
+            ->groupBy('transaction_details.menu_name')
+            ->orderByDesc('total_qty')
+            ->limit(10)
+            ->get();
+
+        return view('exports.income', [
+            'transactions' => $transactions,
+            'topMenus' => $topMenus,
+            'fromDate' => $this->fromDate,
+            'toDate' => $this->toDate,
+        ]);
     }
 
     public function styles(Worksheet $sheet)

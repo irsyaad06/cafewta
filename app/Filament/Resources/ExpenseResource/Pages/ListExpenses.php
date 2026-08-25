@@ -81,10 +81,21 @@ class ListExpenses extends ListRecords
                     ->orderBy('date', 'desc')
                     ->get();
 
+                $topExpenses = \Illuminate\Support\Facades\DB::table('expenses')
+                    ->join('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id')
+                    ->whereDate('expenses.date', '>=', $fromDate)
+                    ->whereDate('expenses.date', '<=', $toDate)
+                    ->select('expense_categories.name as category_name', \Illuminate\Support\Facades\DB::raw('COUNT(expenses.id) as total_count'))
+                    ->groupBy('expense_categories.name')
+                    ->orderByDesc('total_count')
+                    ->limit(5)
+                    ->get();
+
                 $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pengeluaran', [
-                    'expenses'  => $expenses,
-                    'fromDate'  => \Carbon\Carbon::parse($fromDate)->format('d/m/Y'),
-                    'toDate'    => \Carbon\Carbon::parse($toDate)->format('d/m/Y'),
+                    'expenses'    => $expenses,
+                    'topExpenses' => $topExpenses,
+                    'fromDate'    => \Carbon\Carbon::parse($fromDate)->format('d/m/Y'),
+                    'toDate'      => \Carbon\Carbon::parse($toDate)->format('d/m/Y'),
                 ])->setPaper('a4', 'landscape');
 
                 return response()->streamDownload(function () use ($pdf) {

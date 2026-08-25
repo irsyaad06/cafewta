@@ -3,14 +3,13 @@
 namespace App\Exports;
 
 use App\Models\Expense;
-use Maatwebsite\Excel\Concerns\FromQuery;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ExpenseExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
+class ExpenseExport implements FromView, ShouldAutoSize, WithStyles
 {
     protected $fromDate;
     protected $toDate;
@@ -21,7 +20,7 @@ class ExpenseExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoS
         $this->toDate = $toDate;
     }
 
-    public function query()
+    public function view(): View
     {
         $query = Expense::query()->with(['category', 'user']);
 
@@ -32,29 +31,30 @@ class ExpenseExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoS
             $query->whereDate('date', '<=', $this->toDate);
         }
 
-        return $query->orderBy('date', 'desc');
-    }
+        $expenses = $query->orderBy('date', 'desc')->get();
 
-    public function headings(): array
-    {
-        return [
-            'Tanggal',
-            'Kategori',
-            'Keterangan',
-            'Diinput Oleh',
-            'Nominal (Rp)',
-        ];
-    }
+        $topExpensesQuery = \Illuminate\Support\Facades\DB::table('expenses')
+            ->join('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id');
 
-    public function map($expense): array
-    {
-        return [
-            \Carbon\Carbon::parse($expense->date)->format('d/m/Y'),
-            $expense->category ? $expense->category->name : '-',
-            $expense->description,
-            $expense->user ? $expense->user->name : '-',
-            $expense->amount, // Returning integer purely so Excel reads it as number for SUM
-        ];
+        if ($this->fromDate) {
+            $topExpensesQuery->whereDate('expenses.date', '>=', $this->fromDate);
+        }
+        if ($this->toDate) {
+            $topExpensesQuery->whereDate('expenses.date', '<=', $this->toDate);
+        }
+
+        $topExpenses = $topExpensesQuery->select('expense_categories.name as category_name', \Illuminate\Support\Facades\DB::raw('COUNT(expenses.id) as total_count'))
+            ->groupBy('expense_categories.name')
+            ->orderByDesc('total_count')
+            ->limit(5)
+            ->get();
+
+        return view('exports.expenses', [
+            'expenses' => $expenses,
+            'topExpenses' => $topExpenses,
+            'fromDate' => $this->fromDate,
+            'toDate' => $this->toDate,
+        ]);
     }
 
     public function styles(Worksheet $sheet)
