@@ -19,6 +19,7 @@ class TransactionDetail extends Model
         'hpp',
         'quantity',
         'subtotal',
+        'status',
     ];
 
     protected function casts(): array

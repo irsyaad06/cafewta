@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/pos', [\App\Http\Controllers\PosController::class, 'store'])->name('pos.store');
     Route::get('/pos/orders', [\App\Http\Controllers\PosController::class, 'orders'])->name('pos.orders');
     Route::patch('/pos/orders/{transaction}', [\App\Http\Controllers\PosController::class, 'updateOrderStatus'])->name('pos.updateStatus');
+    Route::patch('/pos/orders/detail/{transactionDetail}', [\App\Http\Controllers\PosController::class, 'updateTransactionDetailStatus'])->name('pos.updateDetailStatus');
 
     // Keuangan Routes
     Route::get('/finance/income', [\App\Http\Controllers\FinanceController::class, 'income'])->name('finance.income');

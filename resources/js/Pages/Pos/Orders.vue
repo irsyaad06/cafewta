@@ -181,6 +181,14 @@ const updateStatus = (transaction, newStatus) => {
     });
 };
 
+const updateDetailStatus = (detail, newStatus) => {
+    router.patch(route('pos.updateDetailStatus', detail.id), {
+        status: newStatus
+    }, {
+        preserveScroll: true,
+    });
+};
+
 const canViewTab = (tab) => {
     if (userRole.value === 'kitchen') return ['completed', 'cooking'].includes(tab);
     if (userRole.value === 'waiter') return ['ready', 'delivered'].includes(tab);
@@ -405,11 +413,32 @@ const canViewTab = (tab) => {
                         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Detail Pesanan</h4>
                         <ul class="space-y-3">
                             <li v-for="detail in transaction.transaction_details" :key="detail.id" class="flex justify-between items-start text-sm group/item">
-                                <div class="flex items-start gap-2.5">
-                                    <span class="font-black text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded text-xs">{{ detail.quantity }}x</span>
-                                    <span class="text-gray-600 font-medium group-hover/item:text-primary-600 transition-colors">{{ detail.menu_name }}</span>
+                                <div class="flex flex-col gap-2 w-full">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex items-start gap-2.5">
+                                            <span class="font-black text-gray-800 bg-gray-100 px-1.5 py-0.5 rounded text-xs">{{ detail.quantity }}x</span>
+                                            <div>
+                                                <span class="text-gray-600 font-medium group-hover/item:text-primary-600 transition-colors">{{ detail.menu_name }}</span>
+                                                <span v-if="detail.status" class="ml-2 px-2 py-0.5 text-[10px] uppercase font-bold rounded-full" 
+                                                      :class="{
+                                                          'bg-red-100 text-red-700': detail.status === 'pending',
+                                                          'bg-blue-100 text-blue-700': detail.status === 'cooking',
+                                                          'bg-purple-100 text-purple-700': detail.status === 'ready',
+                                                          'bg-green-100 text-green-700': detail.status === 'delivered',
+                                                      }">
+                                                    {{ detail.status === 'pending' ? 'menunggu' : (detail.status === 'cooking' ? 'dimasak' : (detail.status === 'ready' ? 'siap' : 'selesai')) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span class="text-gray-800 font-semibold shrink-0">{{ formatCurrency(detail.subtotal) }}</span>
+                                    </div>
+                                    <div v-if="userRole === 'kitchen'" class="flex gap-2 justify-end mt-1">
+                                        <button v-if="transaction.status === 'cooking' && detail.status === 'cooking'" @click="updateDetailStatus(detail, 'ready')" class="px-3 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-xs font-bold rounded-lg shadow-sm transition-colors transform active:scale-95">Selesai Dimasak</button>
+                                    </div>
+                                    <div v-if="userRole === 'waiter'" class="flex gap-2 justify-end mt-1">
+                                        <button v-if="detail.status === 'ready'" @click="updateDetailStatus(detail, 'delivered')" class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg shadow-sm transition-colors transform active:scale-95">Diselesaikan</button>
+                                    </div>
                                 </div>
-                                <span class="text-gray-800 font-semibold shrink-0">{{ formatCurrency(detail.subtotal) }}</span>
                             </li>
                         </ul>
                     </div>
@@ -429,35 +458,14 @@ const canViewTab = (tab) => {
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             Bayar Pesanan
                         </button>
-                        
-                        <button 
-                            v-if="transaction.status === 'completed' && userRole === 'kitchen'"
-                            @click="updateStatus(transaction, 'cooking')"
-                            :disabled="form.processing"
-                            class="w-full py-3.5 bg-yellow-500 text-white font-bold rounded-xl hover:bg-yellow-600 transition-all shadow-md flex justify-center items-center gap-2 transform active:scale-95"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"></path></svg>
-                            Mulai Masak
-                        </button>
-                        
-                        <button 
-                            v-if="transaction.status === 'cooking' && userRole === 'kitchen'"
-                            @click="updateStatus(transaction, 'ready')"
-                            :disabled="form.processing"
-                            class="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md flex justify-center items-center gap-2 transform active:scale-95"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Selesai Dimasak
-                        </button>
 
+                        <!-- Mulai Masak Button for Kitchen in Completed Tab -->
                         <button 
-                            v-if="transaction.status === 'ready' && userRole === 'waiter'"
-                            @click="updateStatus(transaction, 'delivered')"
-                            :disabled="form.processing"
-                            class="w-full py-3.5 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all shadow-md flex justify-center items-center gap-2 transform active:scale-95"
+                            v-if="userRole === 'kitchen' && transaction.status === 'completed'"
+                            @click="updateStatus(transaction, 'cooking')"
+                            class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md flex justify-center items-center gap-2 transform active:scale-95 hover:shadow-blue-500/30"
                         >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Sudah Diantar
+                            Mulai Masak
                         </button>
 
                     </div>

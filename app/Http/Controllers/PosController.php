@@ -73,12 +73,18 @@ class PosController extends Controller
             $originalStatus = $transaction->getOriginal('status');
             $transaction->status = $validated['status'];
 
+            // Cek jika status berubah menjadi 'cooking', ubah semua detail pending menjadi cooking
+            if ($validated['status'] === 'cooking' && $originalStatus !== 'cooking') {
+                $transaction->transactionDetails()->where('status', 'pending')->update(['status' => 'cooking']);
+            }
+
             // Cek jika status berubah menjadi 'ready', kurangi stok bahan baku
             if ($validated['status'] === 'ready' && $originalStatus !== 'ready') {
                 $transaction->load('transactionDetails.menu.recipes.rawMaterial');
                 
                 foreach ($transaction->transactionDetails as $detail) {
-                    if ($detail->menu && $detail->menu->recipes) {
+                    // Hanya kurangi jika status item belum 'ready' (mencegah pengurangan ganda)
+                    if ($detail->status !== 'ready' && $detail->menu && $detail->menu->recipes) {
                         foreach ($detail->menu->recipes as $recipe) {
                             $rawMaterial = $recipe->rawMaterial;
                             if ($rawMaterial) {
@@ -87,6 +93,11 @@ class PosController extends Controller
                                 $rawMaterial->save();
                             }
                         }
+                    }
+                    // Update status item menjadi ready
+                    if ($detail->status !== 'ready') {
+                        $detail->status = 'ready';
+                        $detail->save();
                     }
                 }
             }
@@ -111,6 +122,74 @@ class PosController extends Controller
             }
 
             $transaction->save();
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function updateTransactionDetailStatus(Request $request, TransactionDetail $transactionDetail)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,cooking,ready,delivered'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $originalStatus = $transactionDetail->getOriginal('status');
+            $transactionDetail->status = $validated['status'];
+            $transactionDetail->save();
+
+            // Cek jika status berubah menjadi 'ready', kurangi stok bahan baku
+            if ($validated['status'] === 'ready' && $originalStatus !== 'ready') {
+                $transactionDetail->load('menu.recipes.rawMaterial');
+                if ($transactionDetail->menu && $transactionDetail->menu->recipes) {
+                    foreach ($transactionDetail->menu->recipes as $recipe) {
+                        $rawMaterial = $recipe->rawMaterial;
+                        if ($rawMaterial) {
+                            $rawMaterial->stock -= ($recipe->quantity * $transactionDetail->quantity);
+                            $rawMaterial->save();
+                        }
+                    }
+                }
+            }
+
+            // Sync Header Status
+            $transaction = $transactionDetail->transaction;
+            $allDetails = $transaction->transactionDetails()->get();
+            
+            $allDelivered = $allDetails->every(fn($d) => $d->status === 'delivered');
+            $allReadyOrDelivered = $allDetails->every(fn($d) => in_array($d->status, ['ready', 'delivered']));
+            $anyCooking = $allDetails->contains('status', 'cooking');
+
+            if ($allDelivered) {
+                if ($transaction->status !== 'delivered') {
+                    $transaction->status = 'delivered';
+                    if ($transaction->cafe_table_id) {
+                        $table = CafeTable::find($transaction->cafe_table_id);
+                        if ($table) {
+                            $table->update(['status' => 'available']);
+                        }
+                    }
+                    $transaction->save();
+                }
+            } elseif ($allReadyOrDelivered) {
+                if ($transaction->status !== 'ready') {
+                    $transaction->status = 'ready';
+                    $transaction->save();
+                }
+            } elseif ($anyCooking) {
+                if ($transaction->status !== 'cooking') {
+                    $transaction->status = 'cooking';
+                    $transaction->save();
+                }
+            }
+
             DB::commit();
 
             return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui.');
