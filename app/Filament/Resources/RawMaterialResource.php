@@ -107,8 +107,13 @@ class RawMaterialResource extends Resource
                 Tables\Columns\TextColumn::make('stock_status')
                     ->label('Status Stok')
                     ->badge()
-                    ->state(fn (RawMaterial $record): string => $record->stock <= $record->minimum_stock ? 'Tipis' : 'Aman')
-                    ->color(fn (string $state): string => $state === 'Tipis' ? 'danger' : 'success'),
+                    ->state(fn (RawMaterial $record): string => ucfirst($record->stock_status))
+                    ->color(fn (string $state): string => match (strtolower($state)) {
+                        'habis' => 'danger',
+                        'tipis' => 'warning',
+                        'aman'  => 'success',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat Pada')
                     ->dateTime()

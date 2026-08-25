@@ -25,6 +25,17 @@ class Recipe extends Model
         ];
     }
 
+    protected static function booted()
+    {
+        static::saved(function ($recipe) {
+            if ($recipe->rawMaterial && $recipe->rawMaterial->stock <= 0) {
+                if ($recipe->menu) {
+                    $recipe->menu->update(['is_available' => false]);
+                }
+            }
+        });
+    }
+
     public function menu(): BelongsTo
     {
         return $this->belongsTo(Menu::class);

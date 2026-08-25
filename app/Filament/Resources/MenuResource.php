@@ -64,7 +64,14 @@ class MenuResource extends Resource
                             ->numeric()
                             ->required()
                             ->prefix('Rp')
-                            ->default(0),
+                            ->default(0)
+                            ->rules([
+                                fn (\Filament\Forms\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                    if ((float)$value < (float)$get('hpp')) {
+                                        $fail('Harga Jual tidak boleh lebih kecil dari HPP.');
+                                    }
+                                },
+                            ]),
 
                         Forms\Components\TextInput::make('hpp')
                             ->label('HPP')

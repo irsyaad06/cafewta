@@ -62,7 +62,12 @@ class PurchaseResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('raw_material_id')
                                     ->label('Bahan Baku')
-                                    ->options(RawMaterial::query()->pluck('name', 'id'))
+                                    ->options(function () {
+                                        return RawMaterial::all()->mapWithKeys(function ($item) {
+                                            $stockNumber = (float) $item->stock;
+                                            return [$item->id => "{$item->name} / {$stockNumber} / {$item->stock_status}"];
+                                        });
+                                    })
                                     ->searchable()
                                     ->required()
                                     ->reactive()
