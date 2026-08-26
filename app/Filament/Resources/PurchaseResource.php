@@ -166,6 +166,11 @@ class PurchaseResource extends Resource
                         'selesai' => 'Selesai',
                     ])
                     ->disabled(fn (Purchase $record) => $record->status === 'selesai')
+                    ->afterStateUpdated(function (\App\Models\Purchase $record, $state) {
+                        if ($state === 'selesai') {
+                            $record->processCompletion();
+                        }
+                    })
                     ->sortable(),
             ])
             ->filters([

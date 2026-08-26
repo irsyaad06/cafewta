@@ -87,7 +87,7 @@ class ExpenseResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('date', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\Filter::make('rentang_tanggal')
                     ->form([

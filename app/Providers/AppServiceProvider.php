@@ -22,7 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \App\Models\Purchase::observe(\App\Observers\PurchaseObserver::class);
         \App\Models\PurchaseItem::observe(\App\Observers\PurchaseItemObserver::class);
 
         Vite::prefetch(concurrency: 3);

@@ -9,4 +9,11 @@ use Filament\Resources\Pages\CreateRecord;
 class CreatePurchase extends CreateRecord
 {
     protected static string $resource = PurchaseResource::class;
+
+    protected function afterCreate(): void
+    {
+        if ($this->record->status === 'selesai') {
+            $this->record->processCompletion();
+        }
+    }
 }
