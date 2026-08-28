@@ -45,6 +45,7 @@ class FinanceController extends Controller
     {
         $month = $request->input('month', Carbon::now()->format('m'));
         $year = $request->input('year', Carbon::now()->format('Y'));
+        $categoryId = $request->input('category_id');
 
         $query = Expense::with(['category', 'user']);
 
@@ -53,6 +54,9 @@ class FinanceController extends Controller
         }
         if ($year) {
             $query->whereYear('date', $year);
+        }
+        if ($categoryId) {
+            $query->where('expense_category_id', $categoryId);
         }
 
         $expenses = $query->orderBy('date', 'desc')->get();
@@ -64,6 +68,7 @@ class FinanceController extends Controller
             'filters' => [
                 'month' => $month,
                 'year' => $year,
+                'category_id' => $categoryId,
             ]
         ]);
     }
@@ -97,9 +102,10 @@ class FinanceController extends Controller
     {
         $month = $request->input('month');
         $year = $request->input('year');
+        $categoryId = $request->input('category_id');
         $fileName = 'Pengeluaran_' . ($month ?? 'All') . '_' . ($year ?? 'All') . '.xlsx';
         
-        return Excel::download(new ExpenseExport($month, $year), $fileName);
+        return Excel::download(new ExpenseExport($month, $year, $categoryId), $fileName);
     }
 
     public function exportIncomePdf(Request $request)
@@ -141,6 +147,7 @@ class FinanceController extends Controller
     {
         $month = $request->input('month', Carbon::now()->format('m'));
         $year  = $request->input('year', Carbon::now()->format('Y'));
+        $categoryId = $request->input('category_id');
 
         $query = Expense::with(['category', 'user']);
 
@@ -149,6 +156,9 @@ class FinanceController extends Controller
         }
         if ($year) {
             $query->whereYear('date', $year);
+        }
+        if ($categoryId) {
+            $query->where('expense_category_id', $categoryId);
         }
 
         $expenses = $query->orderBy('date', 'desc')->get();

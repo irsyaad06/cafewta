@@ -11,6 +11,7 @@ const props = defineProps({
 
 const month = ref(props.filters.month || (new Date().getMonth() + 1).toString().padStart(2, '0'));
 const year = ref(props.filters.year || new Date().getFullYear().toString());
+const categoryId = ref(props.filters.category_id || '');
 const isModalOpen = ref(false);
 
 const months = [
@@ -35,10 +36,11 @@ const applyFilter = () => {
     router.get(route('finance.expenses'), {
         month: month.value,
         year: year.value,
+        category_id: categoryId.value,
     }, { preserveState: true, replace: true });
 };
 
-watch([month, year], () => {
+watch([month, year, categoryId], () => {
     applyFilter();
 });
 
@@ -89,7 +91,19 @@ const submitExpense = () => {
                         <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
                     </select>
 
-                    <a :href="route('finance.expenses.export.pdf', { month, year })" class="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition-all">
+                    <select v-model="categoryId" class="w-full sm:w-auto rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="">Semua Kategori</option>
+                        <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+                    </select>
+
+                    <a :href="route('finance.expenses.export', { month, year, category_id: categoryId })" class="inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 transition-all">
+                        <svg class="-ml-0.5 mr-1.5 h-5 w-5 hidden sm:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        Export Excel
+                    </a>
+
+                    <a :href="route('finance.expenses.export.pdf', { month, year, category_id: categoryId })" class="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition-all">
                         <svg class="-ml-0.5 mr-1.5 h-5 w-5 hidden sm:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                         </svg>

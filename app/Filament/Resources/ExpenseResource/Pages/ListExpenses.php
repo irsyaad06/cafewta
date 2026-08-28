@@ -32,22 +32,28 @@ class ListExpenses extends ListRecords
                     ->required()
                     ->default(now()->endOfMonth()),
             ])
-            ->action(function (array $data) {
-                $count = \App\Models\Expense::whereDate('date', '>=', $data['from_date'])
-                    ->whereDate('date', '<=', $data['to_date'])
-                    ->count();
+            ->action(function (array $data, \App\Filament\Resources\ExpenseResource\Pages\ListExpenses $livewire) {
+                $categoryId = $livewire->tableFilters['kategori']['value'] ?? null;
+                $query = \App\Models\Expense::whereDate('date', '>=', $data['from_date'])
+                    ->whereDate('date', '<=', $data['to_date']);
+                
+                if ($categoryId) {
+                    $query->where('expense_category_id', $categoryId);
+                }
+
+                $count = $query->count();
 
                 if ($count === 0) {
                     \Filament\Notifications\Notification::make()
                         ->title('Tidak Ada Data')
-                        ->body('Tidak ada pengeluaran pada rentang tanggal tersebut.')
+                        ->body('Tidak ada pengeluaran pada rentang tanggal dan kategori tersebut.')
                         ->warning()
                         ->send();
                     return;
                 }
 
                 return \Maatwebsite\Excel\Facades\Excel::download(
-                    new \App\Exports\ExpenseExport($data['from_date'], $data['to_date']),
+                    new \App\Exports\ExpenseExport(null, null, $categoryId, $data['from_date'], $data['to_date']),
                     'Pengeluaran_' . $data['from_date'] . '_sampai_' . $data['to_date'] . '.xlsx'
                 );
             });
@@ -70,22 +76,32 @@ class ListExpenses extends ListRecords
             ->modalDescription("Anda akan mengunduh PDF Pengeluaran dengan data dari tanggal {$fromLabel} hingga {$toLabel}.")
             ->modalSubmitActionLabel('Ya, Download PDF')
             ->modalCancelActionLabel('Batal')
-            ->action(function () {
-                $filters  = $this->tableFilters['rentang_tanggal'] ?? [];
+            ->action(function (\App\Filament\Resources\ExpenseResource\Pages\ListExpenses $livewire) {
+                $filters  = $livewire->tableFilters['rentang_tanggal'] ?? [];
                 $fromDate = $filters['date_from'] ?? now()->startOfMonth()->toDateString();
                 $toDate   = $filters['date_until'] ?? now()->endOfMonth()->toDateString();
+                $categoryId = $livewire->tableFilters['kategori']['value'] ?? null;
 
-                $expenses = \App\Models\Expense::with(['category', 'user'])
+                $query = \App\Models\Expense::with(['category', 'user'])
                     ->whereDate('date', '>=', $fromDate)
-                    ->whereDate('date', '<=', $toDate)
-                    ->orderBy('date', 'desc')
-                    ->get();
+                    ->whereDate('date', '<=', $toDate);
 
-                $topExpenses = \Illuminate\Support\Facades\DB::table('expenses')
+                if ($categoryId) {
+                    $query->where('expense_category_id', $categoryId);
+                }
+
+                $expenses = $query->orderBy('date', 'desc')->get();
+
+                $topExpensesQuery = \Illuminate\Support\Facades\DB::table('expenses')
                     ->join('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id')
                     ->whereDate('expenses.date', '>=', $fromDate)
-                    ->whereDate('expenses.date', '<=', $toDate)
-                    ->select('expense_categories.name as category_name', \Illuminate\Support\Facades\DB::raw('COUNT(expenses.id) as total_count'))
+                    ->whereDate('expenses.date', '<=', $toDate);
+
+                if ($categoryId) {
+                    $topExpensesQuery->where('expenses.expense_category_id', $categoryId);
+                }
+
+                $topExpenses = $topExpensesQuery->select('expense_categories.name as category_name', \Illuminate\Support\Facades\DB::raw('COUNT(expenses.id) as total_count'))
                     ->groupBy('expense_categories.name')
                     ->orderByDesc('total_count')
                     ->limit(5)
