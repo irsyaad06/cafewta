@@ -46,11 +46,57 @@ class RawMaterialResource extends Resource
                             ->required()
                             ->maxLength(255),
 
-                        Forms\Components\TextInput::make('unit')
+                        Forms\Components\Select::make('unit')
                             ->label('Satuan')
                             ->required()
-                            ->maxLength(255)
-                            ->placeholder('Contoh: gram, ml, pcs, kg'),
+                            ->native(false)
+                            ->searchable()
+                            ->options([
+                                'Berat' => [
+                                    'mg' => 'Miligram (mg)',
+                                    'g' => 'Gram (g)',
+                                    'kg' => 'Kilogram (kg)',
+                                    'oz' => 'Ounce (oz)',
+                                    'lb' => 'Pound (lb)',
+                                    'ton' => 'Ton',
+                                ],
+                                'Volume' => [
+                                    'ml' => 'Mililiter (ml)',
+                                    'cl' => 'Centiliter (cl)',
+                                    'dl' => 'Desiliter (dl)',
+                                    'L' => 'Liter (L)',
+                                    'gal' => 'Galon (gal)',
+                                    'fl oz' => 'Fluid Ounce (fl oz)',
+                                ],
+                                'Satuan Hitung' => [
+                                    'pcs' => 'Pieces (pcs)',
+                                    'lusin' => 'Lusin (12 pcs)',
+                                    'pack' => 'Pack',
+                                    'box' => 'Box',
+                                    'karton' => 'Karton',
+                                    'sachet' => 'Sachet',
+                                    'butir' => 'Butir',
+                                    'lembar' => 'Lembar',
+                                    'slice' => 'Slice',
+                                    'potong' => 'Potong',
+                                    'ikat' => 'Ikat',
+                                    'bungkus' => 'Bungkus',
+                                    'kaleng' => 'Kaleng',
+                                    'botol' => 'Botol',
+                                    'cup' => 'Cup',
+                                    'porsi' => 'Porsi',
+                                ],
+                                'Sendok & Takaran' => [
+                                    'sdm' => 'Sendok Makan (sdm)',
+                                    'sdt' => 'Sendok Teh (sdt)',
+                                    'cup measure' => 'Cup Takar (250ml)',
+                                ],
+                                'Panjang' => [
+                                    'cm' => 'Centimeter (cm)',
+                                    'm' => 'Meter (m)',
+                                    'inch' => 'Inch',
+                                ],
+                            ]),
 
                         Forms\Components\TextInput::make('stock')
                             ->label('Stok')
