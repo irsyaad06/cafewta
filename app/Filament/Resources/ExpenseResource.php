@@ -60,9 +60,8 @@ class ExpenseResource extends Resource
                     ->sortable()
                     ->label('Tanggal'),
                 Tables\Columns\TextColumn::make('category.name')
-                    ->sortable()
                     ->searchable()
-                    ->label('Kategori'),
+                    ->label(fn () => view('filament.tables.columns.kategori-header')),
                 Tables\Columns\TextColumn::make('description')
                     ->searchable()
                     ->limit(50)
@@ -89,6 +88,9 @@ class ExpenseResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                Tables\Filters\SelectFilter::make('kategori')
+                    ->relationship('category', 'name')
+                    ->label('Kategori (Filter)'),
                 Tables\Filters\Filter::make('rentang_tanggal')
                     ->form([
                         Forms\Components\DatePicker::make('date_from')
